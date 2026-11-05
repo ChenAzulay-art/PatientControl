@@ -1,7 +1,10 @@
 import { Stethoscope } from "lucide-react";
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { Suspense, type ReactNode } from "react";
+import {
+  LanguageSwitcher,
+  LanguageSwitcherFallback,
+} from "@/components/language-switcher";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
 
 /** Top bar with the app name and language switch; `children` go at the end. */
@@ -23,10 +26,21 @@ export async function SiteHeader({
           className="flex shrink-0 items-center gap-2 font-semibold whitespace-nowrap"
         >
           <Stethoscope className="size-5 text-primary" aria-hidden />
-          {t.common.appName}
+          {/* On very narrow screens the icon alone links home, so the header never overflows. */}
+          <span className="max-[400px]:sr-only">{t.common.appName}</span>
         </Link>
         <div className="ms-auto flex items-center gap-1">
-          <LanguageSwitcher current={locale} label={t.common.otherLanguage} />
+          {/* The switcher reads the URL, which on dynamic pages is only known at request time. */}
+          <Suspense
+            fallback={
+              <LanguageSwitcherFallback
+                current={locale}
+                label={t.common.otherLanguage}
+              />
+            }
+          >
+            <LanguageSwitcher current={locale} label={t.common.otherLanguage} />
+          </Suspense>
           {children}
         </div>
       </div>

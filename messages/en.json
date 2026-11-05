@@ -110,13 +110,16 @@
   },
   "nav": {
     "dashboard": "Today",
-    "settings": "Settings"
+    "settings": "Settings",
+    "patients": "Patients"
   },
   "dashboard": {
     "title": "Today",
     "greeting": "Hello, {name}",
     "emptyTitle": "Your clinic is ready",
-    "emptyBody": "Patients, the calendar and session summaries are coming in the next stages."
+    "emptyBody": "Add your patients now. The calendar and session summaries are coming in the next stages.",
+    "addPatient": "Add a patient",
+    "viewPatients": "View patients"
   },
   "settings": {
     "title": "Settings",
@@ -138,5 +141,96 @@
       "subject": "Reset your Patient Control password",
       "body": "Hello {name},\n\nOpen this link to choose a new password:\n{url}\n\nThe link expires in one hour. If you didn't ask to reset your password, you can ignore this email."
     }
+  },
+  "patients": {
+    "title": "Patients",
+    "new": "New patient",
+    "searchLabel": "Search patients",
+    "searchPlaceholder": "Name, phone or email",
+    "search": "Search",
+    "showArchived": "Show archived",
+    "showActive": "Show active",
+    "empty": "No patients yet. Add your first patient to get started.",
+    "noResults": "No patients match your search.",
+    "archivedBadge": "Archived",
+    "columns": {
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "treatments": "Treatments"
+    },
+    "limitNote": "Showing the first 200 patients. Search to narrow the list.",
+    "card": {
+      "personal": "Personal details",
+      "treatment": "Treatment information",
+      "phone": "Phone",
+      "email": "Email",
+      "dateOfBirth": "Date of birth",
+      "age": "Age {age}",
+      "nationalId": "ID number",
+      "preferredLanguage": "Preferred language",
+      "reminders": "Appointment reminders",
+      "remindersOn": "Agreed to receive reminders",
+      "remindersOff": "No reminders",
+      "treatmentTypes": "Type of treatment",
+      "medicalBackground": "Basic medical background",
+      "importantNotes": "Sensitivities and important notes",
+      "none": "Not provided",
+      "edit": "Edit",
+      "archive": "Archive patient",
+      "restore": "Restore patient",
+      "archivedNotice": "This patient is archived. Their record is kept, but they don't appear in the patient list.",
+      "back": "All patients",
+      "updated": "Last updated {date}"
+    },
+    "form": {
+      "newTitle": "New patient",
+      "editTitle": "Edit patient",
+      "fullName": "Full name",
+      "phone": "Phone",
+      "phoneHint": "For example 050-123-4567, or an international number starting with +.",
+      "email": "Email",
+      "dateOfBirth": "Date of birth",
+      "nationalId": "ID number",
+      "nationalIdHint": "Israeli ID number (תעודת זהות), including the check digit.",
+      "treatmentTypes": "Type of treatment",
+      "noTreatmentTypes": "You haven't added any treatment types yet.",
+      "manageTreatmentTypes": "Manage treatment types",
+      "medicalBackground": "Basic medical background",
+      "medicalBackgroundHint": "Conditions, surgeries, medications and anything else relevant to treatment.",
+      "importantNotes": "Sensitivities and important notes",
+      "importantNotesHint": "Allergies, sensitivities or anything to see before every treatment. Shown at the top of the patient card.",
+      "preferredLocale": "Preferred language for messages",
+      "reminderConsent": "The patient agreed to receive appointment reminders",
+      "optional": "Optional",
+      "encryptedNote": "The ID number, medical background and notes are encrypted before they're saved.",
+      "save": "Save patient",
+      "cancel": "Cancel",
+      "duplicateTitle": "Another patient has this ID number",
+      "duplicateBody": "Check that this isn't the same person. To save anyway, select the box below and save again.",
+      "duplicateConfirm": "Save anyway, this is a different person",
+      "fixErrors": "Please fix the highlighted fields."
+    },
+    "errors": {
+      "nameRequired": "Enter the patient's full name (at least 2 characters).",
+      "phoneInvalid": "Enter a valid phone number.",
+      "emailInvalid": "Enter a valid email address, or leave it empty.",
+      "dateOfBirthInvalid": "Enter a valid date of birth that isn't in the future.",
+      "nationalIdInvalid": "This isn't a valid Israeli ID number. Check the digits, including the last one.",
+      "tooLong": "This text is too long.",
+      "notFound": "This patient wasn't found."
+    }
+  },
+  "treatmentTypes": {
+    "title": "Treatment types",
+    "description": "The treatments you offer. Choose them on each patient card.",
+    "name": "Treatment name",
+    "add": "Add",
+    "empty": "No treatment types yet.",
+    "inactive": "Hidden",
+    "hide": "Hide",
+    "show": "Show",
+    "duplicate": "You already have a treatment type with this name.",
+    "nameInvalid": "Enter a name of 2–60 characters."
   }
 }

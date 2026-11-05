@@ -1,9 +1,20 @@
 import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { requireClinic } from "@/lib/dal/session";
+import { listTreatmentTypes } from "@/lib/dal/treatment-types";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
+import { toggleTreatmentType } from "./actions";
+import { AddTreatmentTypeForm } from "./add-treatment-type-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getDictionary()).settings.title };
@@ -37,7 +48,11 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 async function SettingsDetails() {
   const locale = await getLocale();
   const t = await getDictionary();
-  const { user, clinic } = await requireClinic(locale);
+  const ctx = await requireClinic(locale);
+  const { user, clinic } = ctx;
+  const treatmentTypes = await listTreatmentTypes(ctx, {
+    includeInactive: true,
+  });
 
   return (
     <>
@@ -55,6 +70,52 @@ async function SettingsDetails() {
               <span dir="ltr">{clinic.timezone}</span>
             </Row>
           </dl>
+        </CardContent>
+      </Card>
+      <Card id="treatment-types" className="scroll-mt-4">
+        <CardHeader>
+          <CardTitle>{t.treatmentTypes.title}</CardTitle>
+          <CardDescription>{t.treatmentTypes.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {treatmentTypes.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {t.treatmentTypes.empty}
+            </p>
+          ) : (
+            <ul className="divide-y rounded-md border">
+              {treatmentTypes.map((type) => (
+                <li
+                  key={type.id}
+                  className="flex items-center justify-between gap-2 px-3 py-2"
+                >
+                  <span className={type.active ? "" : "text-muted-foreground"}>
+                    {type.name}
+                    {type.active ? null : (
+                      <Badge variant="outline" className="ms-2">
+                        {t.treatmentTypes.inactive}
+                      </Badge>
+                    )}
+                  </span>
+                  <form action={toggleTreatmentType}>
+                    <input type="hidden" name="locale" value={locale} />
+                    <input type="hidden" name="id" value={type.id} />
+                    <input
+                      type="hidden"
+                      name="active"
+                      value={type.active ? "false" : "true"}
+                    />
+                    <Button type="submit" variant="ghost" size="sm">
+                      {type.active
+                        ? t.treatmentTypes.hide
+                        : t.treatmentTypes.show}
+                    </Button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+          <AddTreatmentTypeForm locale={locale} t={t.treatmentTypes} />
         </CardContent>
       </Card>
       <Card>
