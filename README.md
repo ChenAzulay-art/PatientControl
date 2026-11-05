@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Patient Control
 
-## Getting Started
+Clinic management for independent practitioners (reflexologists, physiotherapists and others): patient cards, scheduling and a treatment summary after every session. Hebrew (right-to-left, default) and English.
 
-First, run the development server:
+Built with Next.js 16 (App Router, Cache Components), Better Auth, Drizzle ORM on Postgres (Neon in production), Tailwind CSS and shadcn/ui.
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local      # then set BETTER_AUTH_SECRET (openssl rand -base64 32)
+npm run db:migrate:local        # create the tables in the local database
+npm run dev:local               # start the app with the local database
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`dev:local` runs a local Postgres-compatible database (PGlite, stored in `.data/pglite`), so you don't need Neon or Docker. Emails (verification, password reset) are printed to the terminal instead of being sent while `RESEND_API_KEY` is empty.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Every account must turn on two-step verification with an authenticator app before reaching the clinic.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## With Neon and Resend (Vercel)
 
-## Learn More
+1. Import the repository into Vercel.
+2. From the Vercel Marketplace, add **Neon** (Postgres) and **Resend** to the project.
+3. In the project's environment variables, set `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (the site's URL) and `EMAIL_FROM` (a sender on your verified Resend domain).
+4. Locally: `vercel env pull .env.local`, then `npm run db:migrate` and `npm run dev`.
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Script                                            | What it does                                                  |
+| ------------------------------------------------- | ------------------------------------------------------------- |
+| `npm run dev` / `npm run dev:local`               | Start the app against `DATABASE_URL` / the local database     |
+| `npm run db:generate`                             | Create a migration in `drizzle/` from changes in `db/schema/` |
+| `npm run db:migrate` / `npm run db:migrate:local` | Apply migrations to `DATABASE_URL` / the local database       |
+| `npm run check`                                   | Type-check, lint, format check and tests (the same as CI)     |
+| `npm test` / `npm run test:watch`                 | Run tests once / on every change                              |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Where things live
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/[locale]/` – pages; `(auth)` for sign-up, login and onboarding, `(app)` for the signed-in clinic
+- `lib/dal/` – the only way pages and actions reach clinic data; checks the session, two-step verification and clinic membership
+- `lib/auth.ts` – Better Auth configuration (email verification, two-step verification, rate limits, clinics as organizations)
+- `db/schema/` – database tables; `drizzle/` – migrations
+- `messages/` – Hebrew and English text
