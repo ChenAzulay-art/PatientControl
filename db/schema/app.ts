@@ -1,0 +1,46 @@
+import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { organization, user } from "./auth";
+
+const timestamps = {
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+};
+
+/** Per-clinic settings. A clinic is a Better Auth organization; its slug is the booking address. */
+export const clinicSettings = pgTable("clinic_settings", {
+  clinicId: text("clinic_id")
+    .primaryKey()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  timezone: text("timezone").notNull().default("Asia/Jerusalem"),
+  defaultLocale: text("default_locale").notNull().default("he"),
+  ...timestamps,
+});
+
+/** Who did what and when. Identifiers only: never patient details. */
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clinicId: text("clinic_id").references(() => organization.id, {
+      onDelete: "set null",
+    }),
+    actorId: text("actor_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    action: text("action").notNull(),
+    entity: text("entity"),
+    entityId: text("entity_id"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("audit_log_clinic_created_idx").on(t.clinicId, t.createdAt),
+    index("audit_log_actor_created_idx").on(t.actorId, t.createdAt),
+  ],
+);

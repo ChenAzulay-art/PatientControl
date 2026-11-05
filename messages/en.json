@@ -1,0 +1,142 @@
+{
+  "common": {
+    "appName": "Patient Control",
+    "tagline": "Scheduling, patient cards and treatment notes for independent practitioners.",
+    "otherLanguage": "עברית",
+    "signOut": "Sign out",
+    "loading": "Loading…",
+    "backToHome": "Back to home"
+  },
+  "home": {
+    "title": "Your practice, organized and secure",
+    "subtitle": "Patient Control helps reflexologists, physiotherapists and other independent practitioners keep patient cards, schedule appointments and record a summary after every session.",
+    "getStarted": "Create an account",
+    "logIn": "Log in",
+    "goToDashboard": "Go to dashboard",
+    "featurePatientsTitle": "Patient cards",
+    "featurePatientsBody": "Personal details, medical background and important notes in one place.",
+    "featureScheduleTitle": "Scheduling",
+    "featureScheduleBody": "A clear calendar of your appointments and working hours.",
+    "featureNotesTitle": "Session summaries",
+    "featureNotesBody": "Record what happened in each treatment, kept safely with the patient's history."
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Full name",
+    "login": {
+      "title": "Log in",
+      "description": "Welcome back. Enter your email and password.",
+      "submit": "Log in",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Create one",
+      "invalidCredentials": "The email or password is incorrect.",
+      "emailNotVerified": "Please verify your email first. We've sent you a new link."
+    },
+    "signup": {
+      "title": "Create your account",
+      "description": "Start managing your practice in a few minutes.",
+      "passwordHint": "At least 10 characters.",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "logInLink": "Log in",
+      "emailTaken": "An account with this email already exists."
+    },
+    "verifyEmail": {
+      "title": "Check your email",
+      "description": "We sent a verification link to your email address. Open it to activate your account.",
+      "checkSpam": "Didn't get it? Check your spam folder, or log in again to receive a new link."
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "description": "Enter your account email and we'll send you a link to choose a new password.",
+      "submit": "Send reset link",
+      "sent": "If an account exists for that email, a reset link is on its way."
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "description": "Enter a new password for your account.",
+      "newPassword": "New password",
+      "submit": "Save new password",
+      "success": "Your password was changed. You can log in now.",
+      "invalidToken": "This reset link is invalid or has expired. Request a new one."
+    },
+    "twoFactor": {
+      "title": "Two-step verification",
+      "description": "Enter the 6-digit code from your authenticator app.",
+      "code": "Verification code",
+      "trustDevice": "Trust this device for 30 days",
+      "submit": "Verify",
+      "useBackupCode": "Use a backup code instead",
+      "useAuthenticator": "Use the authenticator app instead",
+      "backupCode": "Backup code",
+      "invalidCode": "That code didn't work. Try again.",
+      "sessionExpired": "Your login expired. Please log in again."
+    },
+    "setup2fa": {
+      "title": "Protect your account",
+      "description": "Patient records are sensitive, so every account uses two-step verification. You'll need an authenticator app such as Google Authenticator, Microsoft Authenticator or 1Password.",
+      "confirmPassword": "Confirm your password to begin",
+      "start": "Continue",
+      "scan": "Scan this QR code with your authenticator app.",
+      "manualKey": "Can't scan it? Enter this key manually:",
+      "enterCode": "Then enter the 6-digit code the app shows.",
+      "verify": "Turn on two-step verification",
+      "backupCodesTitle": "Save your backup codes",
+      "backupCodesDescription": "Each code works once if you lose access to your authenticator app. Store them somewhere safe, such as a password manager.",
+      "continue": "I've saved them, continue"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "tooManyRequests": "Too many attempts. Please wait a minute and try again.",
+      "invalidEmail": "Enter a valid email address.",
+      "passwordTooShort": "The password must be at least 10 characters.",
+      "nameRequired": "Enter your name.",
+      "invalidPassword": "The password is incorrect."
+    }
+  },
+  "onboarding": {
+    "title": "Set up your clinic",
+    "description": "This is how your clinic will appear to you and, later, to patients booking online.",
+    "clinicName": "Clinic name",
+    "clinicNameHint": "For example, your name or your business name.",
+    "slug": "Booking page address",
+    "slugHint": "Lowercase English letters, numbers and dashes. Patients will use it to book online.",
+    "submit": "Create clinic",
+    "slugTaken": "This address is already taken. Choose another one.",
+    "slugInvalid": "Use 3–40 lowercase English letters, numbers and dashes.",
+    "nameRequired": "Enter a clinic name."
+  },
+  "nav": {
+    "dashboard": "Today",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Today",
+    "greeting": "Hello, {name}",
+    "emptyTitle": "Your clinic is ready",
+    "emptyBody": "Patients, the calendar and session summaries are coming in the next stages."
+  },
+  "settings": {
+    "title": "Settings",
+    "clinic": "Clinic",
+    "clinicName": "Clinic name",
+    "bookingAddress": "Booking page address",
+    "timezone": "Time zone",
+    "account": "Account",
+    "email": "Email",
+    "twoFactor": "Two-step verification",
+    "twoFactorOn": "On"
+  },
+  "emails": {
+    "verify": {
+      "subject": "Verify your email for Patient Control",
+      "body": "Hello {name},\n\nOpen this link to verify your email and activate your account:\n{url}\n\nIf you didn't create an account, you can ignore this email."
+    },
+    "reset": {
+      "subject": "Reset your Patient Control password",
+      "body": "Hello {name},\n\nOpen this link to choose a new password:\n{url}\n\nThe link expires in one hour. If you didn't ask to reset your password, you can ignore this email."
+    }
+  }
+}
