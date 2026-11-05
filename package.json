@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest",
     "test:run": "vitest run",
-    "type-check": "tsc --noEmit",
+    "type-check": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check": "npm run type-check && npm run lint && npm run format:check && npm run test:run"
