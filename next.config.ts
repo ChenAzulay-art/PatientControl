@@ -27,6 +27,8 @@ const nextConfig: NextConfig = {
   experimental: {
     agentFeedback: true,
   },
+  // End-to-end tests build into their own folder, so they can run while `npm run dev` does.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,

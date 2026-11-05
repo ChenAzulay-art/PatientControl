@@ -7,14 +7,21 @@
 //
 // Usage: node scripts/local-db.mjs <command> [args...]
 //   e.g. node scripts/local-db.mjs next dev
+//
+// Environment:
+//   LOCAL_DB_PORT     port to listen on (default 5433)
+//   LOCAL_DB_DIR      data folder, or memory:// for a throwaway database (default .data/pglite)
+//   LOCAL_DB_MIGRATE  set to 1 to apply the migrations in drizzle/ before starting the command
 
 import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { btree_gist } from "@electric-sql/pglite/contrib/btree_gist";
 import { PGLiteSocketServer } from "@electric-sql/pglite-socket";
+import { drizzle } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/pglite/migrator";
 
-const DATA_DIR = ".data/pglite";
+const DATA_DIR = process.env.LOCAL_DB_DIR || ".data/pglite";
 const PORT = Number(process.env.LOCAL_DB_PORT ?? 5433);
 
 const [command, ...args] = process.argv.slice(2);
@@ -23,8 +30,13 @@ if (!command) {
   process.exit(1);
 }
 
-mkdirSync(DATA_DIR, { recursive: true });
+if (!DATA_DIR.startsWith("memory://")) mkdirSync(DATA_DIR, { recursive: true });
 const db = await PGlite.create(DATA_DIR, { extensions: { btree_gist } });
+
+if (process.env.LOCAL_DB_MIGRATE === "1") {
+  await migrate(drizzle({ client: db }), { migrationsFolder: "drizzle" });
+  console.info("[local-db] Migrations applied.");
+}
 const server = new PGLiteSocketServer({
   db,
   host: "127.0.0.1",

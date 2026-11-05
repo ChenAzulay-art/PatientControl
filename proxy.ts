@@ -5,6 +5,7 @@ import { isLocale, LOCALE_COOKIE, negotiateLocale } from "@/lib/i18n/config";
 /** Paths (after the locale) that need a session cookie. */
 const PROTECTED_PREFIXES = [
   "/dashboard",
+  "/patients",
   "/settings",
   "/onboarding",
   "/setup-2fa",

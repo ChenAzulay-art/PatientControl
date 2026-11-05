@@ -3,3 +3,6 @@ next-env.d.ts
 AGENTS.md
 drizzle/meta
 components/ui
+.next-e2e
+test-results
+playwright-report

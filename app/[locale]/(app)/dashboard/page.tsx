@@ -1,7 +1,11 @@
+import { UserPlus } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -45,6 +49,17 @@ async function Dashboard() {
           <CardTitle>{t.dashboard.emptyTitle}</CardTitle>
           <CardDescription>{t.dashboard.emptyBody}</CardDescription>
         </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button asChild>
+            <Link href={`/${locale}/patients/new`}>
+              <UserPlus aria-hidden />
+              {t.dashboard.addPatient}
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href={`/${locale}/patients`}>{t.dashboard.viewPatients}</Link>
+          </Button>
+        </CardContent>
       </Card>
     </div>
   );

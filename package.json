@@ -16,7 +16,8 @@
     "db:migrate": "node --env-file-if-exists=.env.local node_modules/drizzle-kit/bin.cjs migrate",
     "dev:local": "node scripts/local-db.mjs next dev",
     "db:migrate:local": "node scripts/local-db.mjs node node_modules/drizzle-kit/bin.cjs migrate",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@vercel/functions": "^3.10.6",
@@ -41,6 +42,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.15",
     "@electric-sql/pglite-socket": "^0.2.18",
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/turbopack": "^4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
