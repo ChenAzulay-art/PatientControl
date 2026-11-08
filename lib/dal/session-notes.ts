@@ -453,12 +453,18 @@ export type MissingSummary = {
 
 /**
  * Sessions that already ended (in the last `days` days), weren't cancelled
- * or missed, and have no final summary yet. Oldest first.
+ * or missed, and have no final summary yet. Oldest first; with `patientId`,
+ * only that patient's sessions, newest first.
  */
 export async function listSessionsMissingSummary(
   ctx: ClinicContext,
-  { now = new Date(), days = 30 }: { now?: Date; days?: number } = {},
+  {
+    now = new Date(),
+    days = 30,
+    patientId,
+  }: { now?: Date; days?: number; patientId?: string } = {},
 ): Promise<MissingSummary[]> {
+  if (patientId !== undefined && !isUuid(patientId)) return [];
   const since = new Date(now.getTime() - days * 86_400_000);
   const rows = await db
     .select({
@@ -498,9 +504,12 @@ export async function listSessionsMissingSummary(
         lt(appointments.endsAt, now),
         gte(appointments.startsAt, since),
         or(isNull(sessionNotes.id), eq(sessionNotes.status, "draft")),
+        patientId ? eq(appointments.patientId, patientId) : undefined,
       ),
     )
-    .orderBy(asc(appointments.startsAt))
+    .orderBy(
+      patientId ? desc(appointments.startsAt) : asc(appointments.startsAt),
+    )
     .limit(50);
 
   return rows.map((row) => ({

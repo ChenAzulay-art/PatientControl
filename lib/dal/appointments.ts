@@ -27,7 +27,7 @@ export type AppointmentView = {
 };
 
 export type AppointmentError =
-  "overlap" | "patientNotFound" | "notFound" | "rangeTooLong";
+  "overlap" | "notPast" | "patientNotFound" | "notFound" | "rangeTooLong";
 
 type Result<T = object> =
   ({ ok: true } & T) | { ok: false; error: AppointmentError };
@@ -170,10 +170,20 @@ async function audit(ctx: ClinicContext, action: string, id: string) {
   });
 }
 
-/** Books an appointment at a wall-clock time in the clinic's time zone. */
+/**
+ * Books an appointment at a wall-clock time in the clinic's time zone.
+ *
+ * With `pastSession`, records a session that already happened but was never
+ * booked (so a summary can be written for it): it must have started before
+ * `now`, and it's saved as completed.
+ */
 export async function createAppointment(
   ctx: ClinicContext,
   input: AppointmentInput,
+  {
+    pastSession = false,
+    now = new Date(),
+  }: { pastSession?: boolean; now?: Date } = {},
 ): Promise<Result<{ id: string }>> {
   if (!(await patientInClinic(ctx, input.patientId))) {
     return { ok: false, error: "patientNotFound" };
@@ -183,6 +193,7 @@ export async function createAppointment(
     : [];
   const startsAt = zonedToUtc(input.date, input.time, ctx.clinic.timezone);
   const endsAt = new Date(startsAt.getTime() + input.durationMinutes * 60_000);
+  if (pastSession && startsAt >= now) return { ok: false, error: "notPast" };
 
   try {
     const [row] = await db
@@ -193,10 +204,15 @@ export async function createAppointment(
         treatmentTypeId,
         startsAt,
         endsAt,
+        status: pastSession ? "completed" : "scheduled",
         createdBy: ctx.user.id,
       })
       .returning({ id: appointments.id });
-    await audit(ctx, "appointment.created", row.id);
+    await audit(
+      ctx,
+      pastSession ? "appointment.recorded_past" : "appointment.created",
+      row.id,
+    );
     return { ok: true, id: row.id };
   } catch (error) {
     if (isOverlap(error)) return { ok: false, error: "overlap" };

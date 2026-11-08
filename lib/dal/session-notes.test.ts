@@ -293,3 +293,91 @@ describe("timeline and reminders to write", () => {
     ]);
   });
 });
+
+describe("adding a summary from the patient card", () => {
+  it("records a past session that was never booked, as completed", async () => {
+    const patient = await addPatient(clinicA, "Walk-in");
+    const now = new Date("2026-07-10T12:00:00Z");
+    const result = await createAppointment(
+      clinicA,
+      {
+        patientId: patient,
+        treatmentTypeId: null,
+        date: "2026-07-09",
+        time: "16:00",
+        durationMinutes: 45,
+      },
+      { pastSession: true, now },
+    );
+    if (!result.ok) throw new Error(result.error);
+    expect((await getAppointment(clinicA, result.id))?.status).toBe(
+      "completed",
+    );
+    expect(
+      (await saveFinalSessionNote(clinicA, result.id, "Walk-in session")).ok,
+    ).toBe(true);
+  });
+
+  it("refuses a future time and an overlapping one", async () => {
+    const patient = await addPatient(clinicA, "Not yet");
+    const now = new Date("2026-07-10T12:00:00Z");
+    const session = (date: string, time: string) =>
+      createAppointment(
+        clinicA,
+        {
+          patientId: patient,
+          treatmentTypeId: null,
+          date,
+          time,
+          durationMinutes: 60,
+        },
+        { pastSession: true, now },
+      );
+    expect(await session("2026-07-11", "09:00")).toEqual({
+      ok: false,
+      error: "notPast",
+    });
+    expect((await session("2026-07-08", "09:00")).ok).toBe(true);
+    expect(await session("2026-07-08", "09:30")).toEqual({
+      ok: false,
+      error: "overlap",
+    });
+  });
+
+  it("can't record a session for another clinic's patient", async () => {
+    expect(
+      await createAppointment(
+        clinicA,
+        {
+          patientId: patientB,
+          treatmentTypeId: null,
+          date: "2026-07-01",
+          time: "09:00",
+          durationMinutes: 60,
+        },
+        { pastSession: true, now: new Date("2026-07-10T12:00:00Z") },
+      ),
+    ).toEqual({ ok: false, error: "patientNotFound" });
+  });
+
+  it("lists one patient's sessions without a summary, newest first", async () => {
+    const patient = await addPatient(clinicA, "Two sessions");
+    const older = await book(clinicA, patient, "2026-09");
+    const newer = await book(clinicA, patient, "2026-10");
+    const other = await addPatient(clinicA, "Someone else");
+    await book(clinicA, other, "2026-10");
+
+    const list = await listSessionsMissingSummary(clinicA, {
+      patientId: patient,
+      now: new Date("2026-11-01T00:00:00Z"),
+      days: 365,
+    });
+    expect(list.map((item) => item.appointmentId)).toEqual([newer, older]);
+    expect(
+      await listSessionsMissingSummary(clinicB, {
+        patientId: patient,
+        days: 365,
+      }),
+    ).toEqual([]);
+  });
+});

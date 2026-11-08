@@ -15,7 +15,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listPatientAppointments } from "@/lib/dal/appointments";
-import { listPatientSessionNotes } from "@/lib/dal/session-notes";
+import {
+  listPatientSessionNotes,
+  listSessionsMissingSummary,
+} from "@/lib/dal/session-notes";
+import { listTreatmentTypes } from "@/lib/dal/treatment-types";
 import { getPatient } from "@/lib/dal/patients";
 import { requireClinic } from "@/lib/dal/session";
 import {
@@ -23,13 +27,16 @@ import {
   formatDate,
   formatDateTime,
   formatDayShort,
+  formatTime,
   languageNames,
 } from "@/lib/format";
+import { todayIn } from "@/lib/scheduling/time";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
 import { format } from "@/lib/i18n/format";
 import { formatPhone } from "@/lib/validation/phone";
 import { AppointmentList } from "../../calendar/appointment-list";
 import { setArchived } from "../actions";
+import { AddSummaryDialog } from "./add-summary-dialog";
 
 export async function generateMetadata(): Promise<Metadata> {
   // The patient's name stays out of the tab title, which can show up in
@@ -73,10 +80,22 @@ async function PatientCard({
 
   const patient = await getPatient(ctx, id);
   if (!patient) notFound();
-  const [appointments, timeline] = await Promise.all([
-    listPatientAppointments(ctx, patient.id),
-    listPatientSessionNotes(ctx, patient.id),
-  ]);
+  const [appointments, timeline, withoutSummary, treatmentTypes] =
+    await Promise.all([
+      listPatientAppointments(ctx, patient.id),
+      listPatientSessionNotes(ctx, patient.id),
+      listSessionsMissingSummary(ctx, { patientId: patient.id, days: 365 }),
+      listTreatmentTypes(ctx),
+    ]);
+  const pendingSessions = withoutSummary.map((session) => {
+    const start = new Date(session.startsAt);
+    return {
+      appointmentId: session.appointmentId,
+      label: `${formatDayShort(locale, start, ctx.clinic.timezone)} · ${formatTime(locale, start, ctx.clinic.timezone)}`,
+      treatmentName: session.treatmentName,
+      hasDraft: session.hasDraft,
+    };
+  });
   const summaries = new Map(
     timeline.map((entry) => [entry.appointmentId, entry.status] as const),
   );
@@ -305,8 +324,17 @@ async function PatientCard({
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
           <CardTitle>{c.summaries}</CardTitle>
+          <AddSummaryDialog
+            locale={locale}
+            t={c}
+            appointmentT={t.appointment}
+            patientId={patient.id}
+            pending={pendingSessions}
+            treatmentTypes={treatmentTypes}
+            today={todayIn(ctx.clinic.timezone)}
+          />
         </CardHeader>
         <CardContent>
           {timeline.length === 0 ? (

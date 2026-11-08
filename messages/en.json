@@ -200,7 +200,14 @@
       "openSummary": "Summary",
       "draftBadge": "Draft",
       "editedBadge": "{n} versions",
-      "showFull": "Show full summary"
+      "showFull": "Show full summary",
+      "addSummary": "Add treatment summary",
+      "addSummaryTitle": "Add a treatment summary",
+      "addSummaryDescription": "Choose the session this summary is for.",
+      "pendingSessions": "Past sessions without a summary",
+      "otherSession": "A session that isn't in the calendar",
+      "otherSessionHint": "It's added to the patient's history as a completed session, and then you write its summary.",
+      "continueToSummary": "Continue to summary"
     },
     "form": {
       "newTitle": "New patient",
@@ -321,7 +328,8 @@
       "durationInvalid": "The length must be between 5 and 480 minutes.",
       "notFound": "This appointment wasn't found.",
       "rangeTooLong": "That date range is too long.",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "notPast": "This is for sessions that already took place. Choose a date and time in the past."
     },
     "reschedule": "Reschedule",
     "writeSummary": "Write summary",

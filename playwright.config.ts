@@ -35,6 +35,8 @@ export default defineConfig({
       LOCAL_DB_PORT: "5434",
       NEXT_DIST_DIR: ".next-e2e",
       EMAIL_SINK_DIR,
+      // Several test accounts sign up within a minute (ignored in production).
+      AUTH_RATE_LIMIT: "off",
       // Test-only secrets for a throwaway database; never used anywhere else.
       BETTER_AUTH_SECRET: "e2e-only-secret-not-for-real-use-0123456789",
       DATA_ENCRYPTION_KEY: "ZTJlLW9ubHkta2V5LW5vdC1mb3ItcmVhbC11c2UhISE=",
