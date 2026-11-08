@@ -2,6 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 const PORT = 3100;
 export const EMAIL_SINK_DIR = ".data/e2e-emails";
+export const LOCAL_DB_PORT = 5434;
+/** Test-only secret for the reminders job; never used anywhere else. */
+export const CRON_SECRET = "e2e-only-cron-secret-0123456789";
 
 /**
  * End-to-end tests run the real app against a fresh in-memory database,
@@ -32,7 +35,7 @@ export default defineConfig({
     env: {
       LOCAL_DB_DIR: "memory://",
       LOCAL_DB_MIGRATE: "1",
-      LOCAL_DB_PORT: "5434",
+      LOCAL_DB_PORT: String(LOCAL_DB_PORT),
       NEXT_DIST_DIR: ".next-e2e",
       EMAIL_SINK_DIR,
       // Several test accounts sign up within a minute (ignored in production).
@@ -40,6 +43,7 @@ export default defineConfig({
       // Test-only secrets for a throwaway database; never used anywhere else.
       BETTER_AUTH_SECRET: "e2e-only-secret-not-for-real-use-0123456789",
       DATA_ENCRYPTION_KEY: "ZTJlLW9ubHkta2V5LW5vdC1mb3ItcmVhbC11c2UhISE=",
+      CRON_SECRET,
       NEXT_TELEMETRY_DISABLED: "1",
     },
   },

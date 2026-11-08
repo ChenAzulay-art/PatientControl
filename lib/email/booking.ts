@@ -5,6 +5,21 @@ import { getDictionaryFor } from "@/lib/i18n/dictionaries";
 import { format } from "@/lib/i18n/format";
 import { sendEmail } from "./index";
 
+/** "Tuesday, 1 December 2026, 10:00" in the clinic's time zone. */
+export function emailDateTime(
+  startsAt: string,
+  timezone: string,
+  locale: Locale,
+): string {
+  return DateTime.fromISO(startsAt, { zone: timezone })
+    .setLocale(locale === "he" ? "he-IL" : "en-IL")
+    .toFormat(
+      locale === "he"
+        ? "cccc, d 'ב'MMMM yyyy, HH:mm"
+        : "cccc, d MMMM yyyy, HH:mm",
+    );
+}
+
 export type BookingEmailKind = "requested" | "confirmed" | "cancelled";
 
 /**
@@ -35,13 +50,7 @@ export async function sendBookingEmail({
   bookUrl?: string;
 }): Promise<void> {
   const t = await getDictionaryFor(locale);
-  const when = DateTime.fromISO(startsAt, { zone: timezone })
-    .setLocale(locale === "he" ? "he-IL" : "en-IL")
-    .toFormat(
-      locale === "he"
-        ? "cccc, d 'ב'MMMM yyyy, HH:mm"
-        : "cccc, d MMMM yyyy, HH:mm",
-    );
+  const when = emailDateTime(startsAt, timezone, locale);
   const values = {
     name: patientName,
     clinic: clinicName,

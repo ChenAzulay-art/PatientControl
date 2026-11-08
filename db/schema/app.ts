@@ -40,6 +40,10 @@ export const clinicSettings = pgTable("clinic_settings", {
   bookingSlotIntervalMinutes: integer("booking_slot_interval_minutes")
     .notNull()
     .default(30),
+  /** Email reminders go to patients who agreed to them. */
+  remindersEnabled: boolean("reminders_enabled").notNull().default(true),
+  /** How long before an appointment the reminder is sent. */
+  reminderLeadMinutes: integer("reminder_lead_minutes").notNull().default(1440),
   ...timestamps,
 });
 

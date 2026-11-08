@@ -66,6 +66,7 @@ describe("database migrations", () => {
       "availability_rules",
       "availability_exceptions",
       "appointments",
+      "notifications",
     ]) {
       expect(tables).toContain(table);
     }

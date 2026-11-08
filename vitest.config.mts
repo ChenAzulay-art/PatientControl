@@ -11,6 +11,10 @@ export default defineConfig({
       "server-only": fileURLToPath(
         new URL("./test/server-only-stub.ts", import.meta.url),
       ),
+      // Provided by the Next.js compiler; email code loads dictionaries from the same module.
+      "next/root-params": fileURLToPath(
+        new URL("./test/root-params-stub.ts", import.meta.url),
+      ),
     },
   },
   test: {
