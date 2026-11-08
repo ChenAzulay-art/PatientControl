@@ -44,7 +44,9 @@
       "submit": "Create account",
       "haveAccount": "Already have an account?",
       "logInLink": "Log in",
-      "emailTaken": "An account with this email already exists."
+      "emailTaken": "An account with this email already exists.",
+      "agree": "I agree to the {terms} and the {privacy}.",
+      "mustAgree": "Please agree to the terms of use and the privacy policy."
     },
     "verifyEmail": {
       "title": "Check your email",
@@ -466,7 +468,8 @@
       "notCancellable": "This appointment can no longer be cancelled online. Please contact the clinic.",
       "invalid": "This cancellation link isn't valid.",
       "bookAgain": "Book another time"
-    }
+    },
+    "privacyLink": "Privacy policy"
   },
   "onlineBooking": {
     "title": "Online booking",
@@ -509,6 +512,51 @@
       "retry": "Will try again",
       "failed": "Failed to send",
       "notDue": "Not sent – appointment changed"
+    }
+  },
+  "legal": {
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "termsInline": "terms of use",
+    "privacyInline": "privacy policy",
+    "draft": "Draft – this text is waiting for review by a lawyer and isn't in effect yet.",
+    "lastUpdated": "Last updated: {date}"
+  },
+  "dataExport": {
+    "title": "Export your data",
+    "description": "Download everything in your clinic as one JSON file: patient cards, appointments, treatment summaries with every saved version, and your settings. Keep it somewhere safe – it contains all your patients' medical information.",
+    "password": "Your password",
+    "downloadClinic": "Download all data",
+    "downloadPatient": "Export",
+    "done": "The download has started.",
+    "wrongPassword": "The password is incorrect.",
+    "tooMany": "Too many attempts. Try again in 15 minutes.",
+    "failed": "The export didn't work. Try again."
+  },
+  "deleteAccount": {
+    "title": "Delete account",
+    "description": "Permanently delete your clinic, all its records and your account.",
+    "warningRecords": "Every patient card, appointment and treatment summary is deleted, and your booking page stops working. This can't be undone.",
+    "warningRetention": "You may be required by law to keep medical records for several years. Export your data above and keep it before you delete.",
+    "warningBackups": "Copies in our backups are overwritten within a few days.",
+    "confirmLabel": "To confirm, type your clinic's address: {slug}",
+    "password": "Your password",
+    "submit": "Delete everything permanently",
+    "errors": {
+      "confirm": "The clinic address you typed doesn't match.",
+      "wrongPassword": "The password is incorrect.",
+      "tooMany": "Too many attempts. Try again in 15 minutes.",
+      "notOwner": "Only the clinic's owner can delete it.",
+      "otherMembers": "Remove the other members of the clinic first."
+    },
+    "email": {
+      "subject": "Your Patient Control account was deleted",
+      "body": "Hello {name},\n\nAs you asked, we deleted your account and the clinic {clinic}, with all its patients, appointments and treatment summaries.\n\nIf you didn't do this, reply to this email right away."
+    },
+    "done": {
+      "title": "Your account was deleted",
+      "body": "Your clinic and all its records were deleted, and you were signed out. We sent a confirmation to your email.",
+      "home": "Back to the home page"
     }
   }
 }

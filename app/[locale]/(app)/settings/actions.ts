@@ -1,6 +1,9 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { accountDeletionBlocker, deleteClinicAccount } from "@/lib/dal/account";
 import {
   addAvailabilityException,
   removeAvailabilityException,
@@ -8,13 +11,17 @@ import {
 } from "@/lib/dal/availability";
 import { updateBookingSettings } from "@/lib/dal/booking-settings";
 import { updateReminderSettings } from "@/lib/dal/reminders";
+import { confirmPassword } from "@/lib/dal/reauth";
 import { requireClinic } from "@/lib/dal/session";
+import { sendEmail } from "@/lib/email";
 import {
   createTreatmentType,
   setTreatmentTypeActive,
   updateTreatmentType,
 } from "@/lib/dal/treatment-types";
 import { defaultLocale, isLocale } from "@/lib/i18n/config";
+import { getDictionaryFor } from "@/lib/i18n/dictionaries";
+import { format } from "@/lib/i18n/format";
 import { bookingSettingsSchema } from "@/lib/validation/booking";
 import { reminderSettingsSchema } from "@/lib/validation/reminders";
 import {
@@ -185,4 +192,54 @@ export async function saveReminderSettings(
   if (!parsed.success) return { error: "invalid" };
   await updateReminderSettings(ctx, parsed.data);
   return { savedAt: Date.now() };
+}
+
+/* ---------- Deleting the account ---------- */
+
+export type DeleteAccountState = {
+  error?: "confirm" | "wrongPassword" | "tooMany" | "notOwner" | "otherMembers";
+};
+
+/**
+ * Deletes the clinic, all its records and the practitioner's account, after
+ * the clinic's address is typed and the password entered again. Then signs
+ * out and sends a confirmation email.
+ */
+export async function deleteAccount(
+  _prev: DeleteAccountState,
+  formData: FormData,
+): Promise<DeleteAccountState> {
+  const locale = localeFrom(formData.get("locale"));
+  const ctx = await requireClinic(locale);
+  if (String(formData.get("confirm") ?? "").trim() !== ctx.clinic.slug) {
+    return { error: "confirm" };
+  }
+  const check = await confirmPassword(
+    ctx,
+    String(formData.get("password") ?? ""),
+  );
+  if (check !== "ok") {
+    return { error: check === "tooMany" ? "tooMany" : "wrongPassword" };
+  }
+  const blocker = await accountDeletionBlocker(ctx);
+  if (blocker) return { error: blocker };
+
+  // Sign out first, while the session still exists, so the cookies are cleared.
+  const requestHeaders = await headers();
+  await auth.api.signOut({ headers: requestHeaders });
+  const result = await deleteClinicAccount(ctx);
+  if (!result.ok) return { error: result.error };
+
+  const t = await getDictionaryFor(locale);
+  await sendEmail({
+    to: ctx.user.email,
+    subject: format(t.deleteAccount.email.subject, { clinic: ctx.clinic.name }),
+    text: format(t.deleteAccount.email.body, {
+      name: ctx.user.name,
+      clinic: ctx.clinic.name,
+    }),
+  }).catch(() => {
+    // The account is gone either way; a missing confirmation email isn't worth an error page.
+  });
+  redirect(`/${locale}/account-deleted`);
 }

@@ -26,6 +26,11 @@ Every account must turn on two-step verification with an authenticator app befor
 
 Reminder emails are sent by a [Vercel schedule](https://vercel.com/docs/schedules) declared in `vercel.json`, which calls `/api/cron/reminders` every 15 minutes with `CRON_SECRET`. Locally nothing runs on a timer: run `npm run reminders:run` while the app is running to send the reminders that are due.
 
+## Before launch
+
+- **Legal review:** the privacy policy and terms are drafts and show a "draft" notice. Fill in `lib/legal.ts` and go through [docs/legal-review.md](docs/legal-review.md) with a privacy lawyer.
+- **Backups:** set the Neon restore window, keep a copy of `DATA_ENCRYPTION_KEY` outside Vercel, and do the restore test in [docs/backups.md](docs/backups.md).
+
 ## Scripts
 
 | Script                                            | What it does                                                                                                      |
@@ -34,6 +39,7 @@ Reminder emails are sent by a [Vercel schedule](https://vercel.com/docs/schedule
 | `npm run db:generate`                             | Create a migration in `drizzle/` from changes in `db/schema/`                                                     |
 | `npm run db:migrate` / `npm run db:migrate:local` | Apply migrations to `DATABASE_URL` / the local database                                                           |
 | `npm run reminders:run`                           | Send the reminders that are due now, against the running app                                                      |
+| `npm run db:verify-restore -- <url>`              | Check a restored copy of the database: migrations, counts, and that encrypted fields open (see `docs/backups.md`) |
 | `npm run check`                                   | Type-check, lint, format check and tests (the same as CI)                                                         |
 | `npm test` / `npm run test:watch`                 | Run tests once / on every change                                                                                  |
 | `npm run test:e2e`                                | End-to-end tests in a browser, against a fresh in-memory database (first time: `npx playwright install chromium`) |
@@ -46,6 +52,9 @@ Reminder emails are sent by a [Vercel schedule](https://vercel.com/docs/schedule
 - `lib/dal/session-notes.ts` – treatment summaries: drafts save automatically, saving makes them final, and every later change is kept as a version
 - `lib/dal/public-booking.ts` and `app/[locale]/book/` – online booking without a login: free times from `lib/scheduling/slots.ts`, booking, and the cancel link; protected by Vercel BotID (`instrumentation-client.ts`) and rate limits (`lib/rate-limit.ts`)
 - `lib/reminders/run.ts` and `app/api/cron/reminders/` – reminder emails: who is due one, claiming each before sending so it goes out once, retries, and the log in the `notifications` table
+- `lib/dal/export.ts` and `app/api/export/` – downloading a clinic's or a patient's data as JSON; `lib/dal/account.ts` – deleting the clinic and the account (both ask for the password again, `lib/dal/reauth.ts`)
+- `lib/security-headers.ts` – the Content Security Policy and other headers, applied in `next.config.ts`
+- `app/[locale]/(legal)/` and `lib/legal.ts` – privacy policy and terms of use
 - `lib/crypto.ts` – encryption of the ID number, medical background and important notes
 - `e2e/` – Playwright end-to-end tests
 - `lib/auth.ts` – Better Auth configuration (email verification, two-step verification, rate limits, clinics as organizations)

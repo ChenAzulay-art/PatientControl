@@ -28,7 +28,7 @@ export default async function SignupPage() {
         </>
       }
     >
-      <SignupForm locale={locale} t={t.auth} />
+      <SignupForm locale={locale} t={t.auth} legal={t.legal} />
     </AuthCard>
   );
 }

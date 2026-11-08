@@ -89,6 +89,7 @@ export async function signUpPractitioner(
   await page.getByLabel(he.auth.name).fill(account.name);
   await page.getByLabel(he.auth.email).fill(account.email);
   await page.getByLabel(he.auth.password).fill(account.password);
+  await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: he.auth.signup.submit }).click();
   await expect(page).toHaveURL(/\/he\/verify-email$/);
 

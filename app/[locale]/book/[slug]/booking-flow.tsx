@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarCheck, CheckCircle2, Clock, LoaderCircle } from "lucide-react";
+import Link from "next/link";
 import { useState, useTransition, type FormEvent } from "react";
 import { FormMessage } from "@/components/form-message";
 import { Button } from "@/components/ui/button";
@@ -323,7 +324,14 @@ export function BookingFlow({
               {t.reminderConsent}
             </label>
             <p className="text-sm text-muted-foreground">
-              {format(t.privacyNote, { clinic: clinic.name })}
+              {format(t.privacyNote, { clinic: clinic.name })}{" "}
+              <Link
+                href={`/${locale}/privacy`}
+                target="_blank"
+                className="underline underline-offset-4 hover:text-foreground"
+              >
+                {t.privacyLink}
+              </Link>
             </p>
             <div>
               <Button type="submit" size="lg" disabled={submitting}>

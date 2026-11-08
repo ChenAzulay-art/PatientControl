@@ -18,7 +18,8 @@
     "db:migrate:local": "node scripts/local-db.mjs node node_modules/drizzle-kit/bin.cjs migrate",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "reminders:run": "node --env-file-if-exists=.env.local scripts/run-reminders.mjs"
+    "reminders:run": "node --env-file-if-exists=.env.local scripts/run-reminders.mjs",
+    "db:verify-restore": "node --conditions=react-server --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/verify-restore.mjs"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.22",
