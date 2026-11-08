@@ -24,6 +24,7 @@ export type AppointmentView = {
   startsAt: string;
   endsAt: string;
   status: AppointmentStatus;
+  source: "staff" | "online";
 };
 
 export type AppointmentError =
@@ -52,6 +53,7 @@ const view = {
   startsAt: appointments.startsAt,
   endsAt: appointments.endsAt,
   status: appointments.status,
+  source: appointments.source,
 };
 
 type ViewRow = {
@@ -293,4 +295,23 @@ export async function setAppointmentStatus(
   }
   await audit(ctx, `appointment.${status}`, id);
   return { ok: true };
+}
+
+/** Online bookings still waiting for the practitioner's approval, soonest first. */
+export async function listPendingOnlineRequests(
+  ctx: ClinicContext,
+  now: Date = new Date(),
+): Promise<AppointmentView[]> {
+  const rows = await baseQuery()
+    .where(
+      and(
+        eq(appointments.clinicId, ctx.clinic.id),
+        eq(appointments.source, "online"),
+        eq(appointments.status, "scheduled"),
+        gt(appointments.startsAt, now),
+      ),
+    )
+    .orderBy(asc(appointments.startsAt))
+    .limit(50);
+  return rows.map(toView);
 }

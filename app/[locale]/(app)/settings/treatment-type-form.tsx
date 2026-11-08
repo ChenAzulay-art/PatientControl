@@ -17,6 +17,7 @@ export type TreatmentTypeValues = {
   durationMinutes: number;
   priceAgorot: number | null;
   color: string;
+  bookableOnline: boolean;
 };
 
 /** Adds a treatment type, or edits one when `initial.id` is set. */
@@ -128,6 +129,16 @@ export function TreatmentTypeForm({
           ))}
         </div>
       </fieldset>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          name="bookableOnline"
+          defaultChecked={initial?.bookableOnline ?? false}
+          className="size-4 accent-primary"
+        />
+        {t.bookableOnline}
+      </label>
 
       <FieldError>{state.error ? t[state.error] : null}</FieldError>
 

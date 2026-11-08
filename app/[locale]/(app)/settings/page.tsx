@@ -13,12 +13,15 @@ import {
   getWorkingHours,
   listAvailabilityExceptions,
 } from "@/lib/dal/availability";
+import { getBookingSettings } from "@/lib/dal/booking-settings";
 import { requireClinic } from "@/lib/dal/session";
 import { listTreatmentTypes } from "@/lib/dal/treatment-types";
 import { formatDate, weekdayNames } from "@/lib/format";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
 import { todayIn } from "@/lib/scheduling/time";
+import { siteUrl } from "@/lib/site-url";
 import { removeException } from "./actions";
+import { BookingSettingsForm } from "./booking-settings-form";
 import { ExceptionForm } from "./exception-form";
 import { TreatmentTypeForm } from "./treatment-type-form";
 import { TreatmentTypeList } from "./treatment-type-list";
@@ -59,11 +62,14 @@ async function SettingsDetails() {
   const ctx = await requireClinic(locale);
   const { user, clinic } = ctx;
   const today = todayIn(clinic.timezone);
-  const [treatmentTypes, hours, exceptions] = await Promise.all([
-    listTreatmentTypes(ctx, { includeInactive: true }),
-    getWorkingHours(ctx),
-    listAvailabilityExceptions(ctx, { from: today }),
-  ]);
+  const [treatmentTypes, hours, exceptions, booking, origin] =
+    await Promise.all([
+      listTreatmentTypes(ctx, { includeInactive: true }),
+      getWorkingHours(ctx),
+      listAvailabilityExceptions(ctx, { from: today }),
+      getBookingSettings(ctx),
+      siteUrl(),
+    ]);
 
   return (
     <>
@@ -97,6 +103,21 @@ async function SettingsDetails() {
             items={treatmentTypes}
           />
           <TreatmentTypeForm locale={locale} t={t.treatmentTypes} />
+        </CardContent>
+      </Card>
+
+      <Card id="online-booking" className="scroll-mt-4">
+        <CardHeader>
+          <CardTitle>{t.onlineBooking.title}</CardTitle>
+          <CardDescription>{t.onlineBooking.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <BookingSettingsForm
+            locale={locale}
+            t={t.onlineBooking}
+            settings={booking}
+            bookingUrl={`${origin}/${locale}/book/${clinic.slug}`}
+          />
         </CardContent>
       </Card>
 

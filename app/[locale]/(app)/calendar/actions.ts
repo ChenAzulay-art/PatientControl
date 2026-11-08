@@ -14,6 +14,7 @@ import {
 import { isUuid } from "@/lib/dal/context";
 import { requireClinic } from "@/lib/dal/session";
 import { defaultLocale, isLocale } from "@/lib/i18n/config";
+import { notifyOnlineBookingStatus } from "@/lib/notifications/appointment-status";
 import {
   appointmentInputSchema,
   appointmentMoveSchema,
@@ -114,11 +115,12 @@ export async function setStatusAction(input: {
   if (!appointmentStatuses.includes(input.status as AppointmentStatus)) {
     return { ok: false, error: "generic" };
   }
-  return setAppointmentStatus(
-    ctx,
-    input.appointmentId,
-    input.status as AppointmentStatus,
-  );
+  const status = input.status as AppointmentStatus;
+  const result = await setAppointmentStatus(ctx, input.appointmentId, status);
+  if (result.ok) {
+    await notifyOnlineBookingStatus(ctx, input.appointmentId, status);
+  }
+  return result;
 }
 
 /** Status change from a plain form (dashboard, patient card); returns to `returnTo`. */
@@ -127,11 +129,19 @@ export async function setStatusFromForm(formData: FormData) {
   const ctx = await requireClinic(locale);
   const status = String(formData.get("status") ?? "");
   if (appointmentStatuses.includes(status as AppointmentStatus)) {
-    await setAppointmentStatus(
+    const appointmentId = String(formData.get("appointmentId") ?? "");
+    const result = await setAppointmentStatus(
       ctx,
-      String(formData.get("appointmentId") ?? ""),
+      appointmentId,
       status as AppointmentStatus,
     );
+    if (result.ok) {
+      await notifyOnlineBookingStatus(
+        ctx,
+        appointmentId,
+        status as AppointmentStatus,
+      );
+    }
   }
   const returnTo = String(formData.get("returnTo") ?? "");
   // Only same-site paths in this locale.

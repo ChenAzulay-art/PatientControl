@@ -5,7 +5,10 @@
     "otherLanguage": "עברית",
     "signOut": "Sign out",
     "loading": "Loading…",
-    "backToHome": "Back to home"
+    "backToHome": "Back to home",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "This page doesn't exist or is no longer available.",
+    "notFoundHome": "Go to the home page"
   },
   "home": {
     "title": "Your practice, organized and secure",
@@ -125,7 +128,10 @@
     "todayEmpty": "No appointments today.",
     "openCalendar": "Open calendar",
     "missingTitle": "Summaries to write",
-    "missingEmpty": "Every recent session has a summary."
+    "missingEmpty": "Every recent session has a summary.",
+    "requestsTitle": "Online booking requests",
+    "approve": "Confirm",
+    "decline": "Decline"
   },
   "settings": {
     "title": "Settings",
@@ -146,6 +152,20 @@
     "reset": {
       "subject": "Reset your Patient Control password",
       "body": "Hello {name},\n\nOpen this link to choose a new password:\n{url}\n\nThe link expires in one hour. If you didn't ask to reset your password, you can ignore this email."
+    },
+    "booking": {
+      "requested": {
+        "subject": "We received your appointment request – {clinic}",
+        "body": "Hello {name},\n\nWe received your request for {treatment} on {when} at {clinic}. The clinic will confirm it soon, and we'll email you when it does.\n\nTo cancel, open this link:\n{cancelUrl}"
+      },
+      "confirmed": {
+        "subject": "Your appointment is confirmed – {clinic}",
+        "body": "Hello {name},\n\nYour appointment for {treatment} on {when} at {clinic} is confirmed.\n\nIf you can't make it, please cancel with this link:\n{cancelUrl}"
+      },
+      "cancelled": {
+        "subject": "Your appointment was cancelled – {clinic}",
+        "body": "Hello {name},\n\nYour appointment for {treatment} on {when} at {clinic} was cancelled by the clinic. You're welcome to book another time:\n{bookUrl}"
+      }
     }
   },
   "patients": {
@@ -278,7 +298,9 @@
       "green": "Green",
       "orange": "Orange",
       "slate": "Gray"
-    }
+    },
+    "bookableOnline": "Bookable online",
+    "onlineBadge": "Online"
   },
   "calendar": {
     "title": "Calendar",
@@ -333,7 +355,8 @@
     },
     "reschedule": "Reschedule",
     "writeSummary": "Write summary",
-    "openSummary": "Open summary"
+    "openSummary": "Open summary",
+    "onlineBadge": "Online"
   },
   "workingHours": {
     "title": "Working hours",
@@ -394,5 +417,69 @@
       "empty": "Write the summary before saving.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "booking": {
+    "title": "Book an appointment",
+    "subtitle": "Online booking for {clinic}",
+    "chooseTreatment": "Choose a treatment",
+    "chooseTime": "Choose a day and time",
+    "noTypes": "Online booking isn't available right now. Please contact the clinic.",
+    "noSlots": "There are no open times at the moment. Please contact the clinic.",
+    "loadingSlots": "Loading available times…",
+    "change": "Change",
+    "details": "Your details",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "phoneHint": "For example 050-123-4567.",
+    "email": "Email",
+    "emailHint": "We'll send the details and a link to cancel here.",
+    "reminderConsent": "Send me a reminder before the appointment",
+    "privacyNote": "Your details are only shared with {clinic}.",
+    "submit": "Book appointment",
+    "confirmedTitle": "Your appointment is booked",
+    "requestedTitle": "Your request was sent",
+    "confirmedBody": "We sent the details and a link to cancel to {email}.",
+    "requestedBody": "{clinic} will confirm it soon. We sent the details to {email}.",
+    "errors": {
+      "slotUnavailable": "That time was just taken. Please choose another.",
+      "rateLimited": "Too many booking attempts. Please try again later.",
+      "notFound": "This booking page isn't available.",
+      "nameRequired": "Enter your full name.",
+      "phoneInvalid": "Enter a valid phone number.",
+      "emailInvalid": "Enter a valid email address.",
+      "bot": "We couldn't verify this request. Please reload the page and try again.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "cancel": {
+      "title": "Cancel your appointment",
+      "with": "{treatment} at {clinic}",
+      "confirm": "Cancel the appointment",
+      "cancelled": "Your appointment was cancelled.",
+      "alreadyCancelled": "This appointment is already cancelled.",
+      "notCancellable": "This appointment can no longer be cancelled online. Please contact the clinic.",
+      "invalid": "This cancellation link isn't valid.",
+      "bookAgain": "Book another time"
+    }
+  },
+  "onlineBooking": {
+    "title": "Online booking",
+    "description": "Let patients book open times themselves on your booking page.",
+    "enabled": "Accept online bookings",
+    "link": "Your booking page",
+    "copy": "Copy link",
+    "copied": "Copied",
+    "autoConfirm": "Confirm online bookings automatically",
+    "autoConfirmHint": "If this is off, new bookings wait for your approval on the dashboard.",
+    "minNotice": "Minimum notice",
+    "window": "How far ahead",
+    "interval": "Start times every",
+    "hours": "{n} hours",
+    "days": "{n} days",
+    "minutes": "{n} minutes",
+    "save": "Save",
+    "saved": "Online booking settings saved.",
+    "needsTypes": "Mark at least one treatment type as \"bookable online\" so patients have something to choose.",
+    "needsHours": "Set your working hours so there are times to offer.",
+    "invalid": "Check the values and try again."
   }
 }

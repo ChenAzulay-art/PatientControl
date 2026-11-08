@@ -1,5 +1,6 @@
 import { Check, NotebookPen, UserX } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { SessionNoteStatus } from "@/db/schema";
 import type { AppointmentView } from "@/lib/dal/appointments";
@@ -86,6 +87,9 @@ export function AppointmentList({
                 </span>
               ) : null}
             </span>
+            {appointment.source === "online" ? (
+              <Badge variant="secondary">{t.onlineBadge}</Badge>
+            ) : null}
             <StatusBadge status={appointment.status} t={t} />
             {summaries && summaryT
               ? (() => {

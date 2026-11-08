@@ -12,11 +12,17 @@ export type TreatmentType = {
   durationMinutes: number;
   priceAgorot: number | null;
   color: string;
+  bookableOnline: boolean;
   active: boolean;
 };
 
 /** Shorthand used by tests and callers that only care about the name. */
-const defaults = { durationMinutes: 60, priceAgorot: null, color: "teal" };
+const defaults = {
+  durationMinutes: 60,
+  priceAgorot: null,
+  color: "teal",
+  bookableOnline: false,
+};
 
 export async function listTreatmentTypes(
   ctx: ClinicContext,
@@ -29,6 +35,7 @@ export async function listTreatmentTypes(
       durationMinutes: treatmentTypes.durationMinutes,
       priceAgorot: treatmentTypes.priceAgorot,
       color: treatmentTypes.color,
+      bookableOnline: treatmentTypes.bookableOnline,
       active: treatmentTypes.active,
     })
     .from(treatmentTypes)
