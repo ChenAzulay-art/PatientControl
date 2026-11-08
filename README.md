@@ -21,8 +21,10 @@ Every account must turn on two-step verification with an authenticator app befor
 
 1. Import the repository into Vercel.
 2. From the Vercel Marketplace, add **Neon** (Postgres) and **Resend** to the project.
-3. In the project's environment variables, set `BETTER_AUTH_SECRET`, `DATA_ENCRYPTION_KEY`, `BETTER_AUTH_URL` (the site's URL) and `EMAIL_FROM` (a sender on your verified Resend domain). Keep a safe copy of `DATA_ENCRYPTION_KEY`: without it, encrypted patient fields can't be read.
+3. In the project's environment variables, set `BETTER_AUTH_SECRET`, `DATA_ENCRYPTION_KEY`, `CRON_SECRET`, `BETTER_AUTH_URL` (the site's URL) and `EMAIL_FROM` (a sender on your verified Resend domain). Keep a safe copy of `DATA_ENCRYPTION_KEY`: without it, encrypted patient fields can't be read.
 4. Locally: `vercel env pull .env.local`, then `npm run db:migrate` and `npm run dev`.
+
+Reminder emails are sent by a [Vercel schedule](https://vercel.com/docs/schedules) declared in `vercel.json`, which calls `/api/cron/reminders` every 15 minutes with `CRON_SECRET`. Locally nothing runs on a timer: run `npm run reminders:run` while the app is running to send the reminders that are due.
 
 ## Scripts
 
@@ -31,6 +33,7 @@ Every account must turn on two-step verification with an authenticator app befor
 | `npm run dev` / `npm run dev:local`               | Start the app against `DATABASE_URL` / the local database                                                         |
 | `npm run db:generate`                             | Create a migration in `drizzle/` from changes in `db/schema/`                                                     |
 | `npm run db:migrate` / `npm run db:migrate:local` | Apply migrations to `DATABASE_URL` / the local database                                                           |
+| `npm run reminders:run`                           | Send the reminders that are due now, against the running app                                                      |
 | `npm run check`                                   | Type-check, lint, format check and tests (the same as CI)                                                         |
 | `npm test` / `npm run test:watch`                 | Run tests once / on every change                                                                                  |
 | `npm run test:e2e`                                | End-to-end tests in a browser, against a fresh in-memory database (first time: `npx playwright install chromium`) |
@@ -42,6 +45,7 @@ Every account must turn on two-step verification with an authenticator app befor
 - `lib/scheduling/` – time-zone conversions (clinic wall-clock time ↔ stored instants, including daylight-saving changes) and calendar colors; overlapping appointments are blocked by a database constraint in `drizzle/0002_scheduling.sql`
 - `lib/dal/session-notes.ts` – treatment summaries: drafts save automatically, saving makes them final, and every later change is kept as a version
 - `lib/dal/public-booking.ts` and `app/[locale]/book/` – online booking without a login: free times from `lib/scheduling/slots.ts`, booking, and the cancel link; protected by Vercel BotID (`instrumentation-client.ts`) and rate limits (`lib/rate-limit.ts`)
+- `lib/reminders/run.ts` and `app/api/cron/reminders/` – reminder emails: who is due one, claiming each before sending so it goes out once, retries, and the log in the `notifications` table
 - `lib/crypto.ts` – encryption of the ID number, medical background and important notes
 - `e2e/` – Playwright end-to-end tests
 - `lib/auth.ts` – Better Auth configuration (email verification, two-step verification, rate limits, clinics as organizations)

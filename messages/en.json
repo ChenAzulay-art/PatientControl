@@ -166,6 +166,13 @@
         "subject": "Your appointment was cancelled – {clinic}",
         "body": "Hello {name},\n\nYour appointment for {treatment} on {when} at {clinic} was cancelled by the clinic. You're welcome to book another time:\n{bookUrl}"
       }
+    },
+    "reminder": {
+      "subject": "Appointment reminder – {clinic}",
+      "body": "Hello {name},\n\nThis is a reminder of your appointment for {treatment} on {when} at {clinic}.",
+      "bodyNoTreatment": "Hello {name},\n\nThis is a reminder of your appointment on {when} at {clinic}.",
+      "cancel": "\n\nIf you can't make it, please cancel with this link:\n{cancelUrl}",
+      "contact": "\n\nIf you can't make it, please let the clinic know."
     }
   },
   "patients": {
@@ -481,5 +488,27 @@
     "needsTypes": "Mark at least one treatment type as \"bookable online\" so patients have something to choose.",
     "needsHours": "Set your working hours so there are times to offer.",
     "invalid": "Check the values and try again."
+  },
+  "reminders": {
+    "title": "Reminders",
+    "description": "A reminder email goes out automatically before each appointment, only to patients who agreed to reminders, in the language chosen on their card.",
+    "enabled": "Send email reminders",
+    "lead": "When to send",
+    "hoursBefore": "{n} hours before",
+    "consentHint": "A patient gets reminders only if \"The patient agreed to receive appointment reminders\" is ticked on their card and it has an email address. Patients who book online choose this themselves.",
+    "save": "Save",
+    "saved": "Reminder settings saved.",
+    "invalid": "Check the values and try again.",
+    "log": "Recent reminders",
+    "none": "No reminders sent yet.",
+    "appointmentAt": "for {when}",
+    "attempts": "{n} attempts",
+    "status": {
+      "sent": "Sent",
+      "sending": "Sending",
+      "retry": "Will try again",
+      "failed": "Failed to send",
+      "notDue": "Not sent – appointment changed"
+    }
   }
 }

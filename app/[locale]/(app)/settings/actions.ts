@@ -7,6 +7,7 @@ import {
   setWorkingHours,
 } from "@/lib/dal/availability";
 import { updateBookingSettings } from "@/lib/dal/booking-settings";
+import { updateReminderSettings } from "@/lib/dal/reminders";
 import { requireClinic } from "@/lib/dal/session";
 import {
   createTreatmentType,
@@ -15,6 +16,7 @@ import {
 } from "@/lib/dal/treatment-types";
 import { defaultLocale, isLocale } from "@/lib/i18n/config";
 import { bookingSettingsSchema } from "@/lib/validation/booking";
+import { reminderSettingsSchema } from "@/lib/validation/reminders";
 import {
   availabilityExceptionSchema,
   treatmentTypeSchema,
@@ -164,5 +166,23 @@ export async function saveBookingSettings(
   });
   if (!parsed.success) return { error: "invalid" };
   await updateBookingSettings(ctx, parsed.data);
+  return { savedAt: Date.now() };
+}
+
+/* ---------- Reminders ---------- */
+
+export type ReminderSettingsState = { error?: "invalid"; savedAt?: number };
+
+export async function saveReminderSettings(
+  _prev: ReminderSettingsState,
+  formData: FormData,
+): Promise<ReminderSettingsState> {
+  const ctx = await requireClinic(localeFrom(formData.get("locale")));
+  const parsed = reminderSettingsSchema.safeParse({
+    enabled: formData.get("enabled") === "on",
+    leadMinutes: formData.get("leadMinutes"),
+  });
+  if (!parsed.success) return { error: "invalid" };
+  await updateReminderSettings(ctx, parsed.data);
   return { savedAt: Date.now() };
 }

@@ -1,6 +1,8 @@
 import { ShieldCheck, X } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,15 +16,27 @@ import {
   listAvailabilityExceptions,
 } from "@/lib/dal/availability";
 import { getBookingSettings } from "@/lib/dal/booking-settings";
+import {
+  getReminderSettings,
+  listRecentReminders,
+  type ReminderLogEntry,
+} from "@/lib/dal/reminders";
 import { requireClinic } from "@/lib/dal/session";
 import { listTreatmentTypes } from "@/lib/dal/treatment-types";
-import { formatDate, weekdayNames } from "@/lib/format";
-import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
+import { formatDate, formatDateTime, weekdayNames } from "@/lib/format";
+import type { Locale } from "@/lib/i18n/config";
+import {
+  type Dictionary,
+  getDictionary,
+  getLocale,
+} from "@/lib/i18n/dictionaries";
+import { format } from "@/lib/i18n/format";
 import { todayIn } from "@/lib/scheduling/time";
 import { siteUrl } from "@/lib/site-url";
 import { removeException } from "./actions";
 import { BookingSettingsForm } from "./booking-settings-form";
 import { ExceptionForm } from "./exception-form";
+import { ReminderSettingsForm } from "./reminder-settings-form";
 import { TreatmentTypeForm } from "./treatment-type-form";
 import { TreatmentTypeList } from "./treatment-type-list";
 import { WorkingHoursForm } from "./working-hours-form";
@@ -62,14 +76,23 @@ async function SettingsDetails() {
   const ctx = await requireClinic(locale);
   const { user, clinic } = ctx;
   const today = todayIn(clinic.timezone);
-  const [treatmentTypes, hours, exceptions, booking, origin] =
-    await Promise.all([
-      listTreatmentTypes(ctx, { includeInactive: true }),
-      getWorkingHours(ctx),
-      listAvailabilityExceptions(ctx, { from: today }),
-      getBookingSettings(ctx),
-      siteUrl(),
-    ]);
+  const [
+    treatmentTypes,
+    hours,
+    exceptions,
+    booking,
+    origin,
+    reminderSettings,
+    reminderLog,
+  ] = await Promise.all([
+    listTreatmentTypes(ctx, { includeInactive: true }),
+    getWorkingHours(ctx),
+    listAvailabilityExceptions(ctx, { from: today }),
+    getBookingSettings(ctx),
+    siteUrl(),
+    getReminderSettings(ctx),
+    listRecentReminders(ctx),
+  ]);
 
   return (
     <>
@@ -117,6 +140,26 @@ async function SettingsDetails() {
             t={t.onlineBooking}
             settings={booking}
             bookingUrl={`${origin}/${locale}/book/${clinic.slug}`}
+          />
+        </CardContent>
+      </Card>
+
+      <Card id="reminders" className="scroll-mt-4">
+        <CardHeader>
+          <CardTitle>{t.reminders.title}</CardTitle>
+          <CardDescription>{t.reminders.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-6">
+          <ReminderSettingsForm
+            locale={locale}
+            t={t.reminders}
+            settings={reminderSettings}
+          />
+          <ReminderLog
+            locale={locale}
+            t={t.reminders}
+            timezone={clinic.timezone}
+            entries={reminderLog}
           />
         </CardContent>
       </Card>
@@ -202,5 +245,83 @@ async function SettingsDetails() {
         </CardContent>
       </Card>
     </>
+  );
+}
+
+function reminderStatus(
+  entry: ReminderLogEntry,
+  t: Dictionary["reminders"]["status"],
+): { label: string; variant: "secondary" | "outline" | "destructive" } {
+  if (entry.errorCode === "not_due") {
+    return { label: t.notDue, variant: "outline" };
+  }
+  switch (entry.status) {
+    case "sent":
+      return { label: t.sent, variant: "secondary" };
+    case "failed":
+      return { label: t.failed, variant: "destructive" };
+    case "retry":
+      return { label: t.retry, variant: "outline" };
+    default:
+      return { label: t.sending, variant: "outline" };
+  }
+}
+
+function ReminderLog({
+  locale,
+  t,
+  timezone,
+  entries,
+}: {
+  locale: Locale;
+  t: Dictionary["reminders"];
+  timezone: string;
+  entries: ReminderLogEntry[];
+}) {
+  return (
+    <section className="flex flex-col gap-2">
+      <h3 className="text-sm font-medium">{t.log}</h3>
+      {entries.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t.none}</p>
+      ) : (
+        <ul className="divide-y rounded-md border">
+          {entries.map((entry) => {
+            const status = reminderStatus(entry, t.status);
+            return (
+              <li
+                key={entry.id}
+                className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm"
+              >
+                <span className="min-w-0">
+                  <Link
+                    href={`/${locale}/patients/${entry.patientId}`}
+                    className="font-medium hover:underline"
+                  >
+                    {entry.patientName}
+                  </Link>
+                  <span className="ms-2 text-muted-foreground">
+                    {format(t.appointmentAt, {
+                      when: formatDateTime(
+                        locale,
+                        new Date(entry.appointmentStartsAt),
+                        timezone,
+                      ),
+                    })}
+                  </span>
+                </span>
+                <span className="flex items-center gap-2">
+                  {entry.attempts > 1 ? (
+                    <span className="text-xs text-muted-foreground">
+                      {format(t.attempts, { n: String(entry.attempts) })}
+                    </span>
+                  ) : null}
+                  <Badge variant={status.variant}>{status.label}</Badge>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
