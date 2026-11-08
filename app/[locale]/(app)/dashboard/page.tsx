@@ -11,16 +11,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { listAppointments } from "@/lib/dal/appointments";
+import {
+  listAppointments,
+  listPendingOnlineRequests,
+} from "@/lib/dal/appointments";
 import {
   listSessionsMissingSummary,
   summaryStatusFor,
 } from "@/lib/dal/session-notes";
 import { requireClinic } from "@/lib/dal/session";
-import { formatDate, formatDayShort } from "@/lib/format";
+import { formatDate, formatDayShort, formatTime } from "@/lib/format";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
 import { format } from "@/lib/i18n/format";
 import { todayIn, zonedDayRange } from "@/lib/scheduling/time";
+import { setStatusFromForm } from "../calendar/actions";
 import { AppointmentList } from "../calendar/appointment-list";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -48,9 +52,10 @@ async function Dashboard() {
 
   const today = todayIn(clinic.timezone);
   const { start, end } = zonedDayRange(today, clinic.timezone);
-  const [appointments, missing] = await Promise.all([
+  const [appointments, missing, requests] = await Promise.all([
     listAppointments(ctx, { from: start, to: end }),
     listSessionsMissingSummary(ctx),
+    listPendingOnlineRequests(ctx),
   ]);
   const summaries = await summaryStatusFor(
     ctx,
@@ -67,6 +72,83 @@ async function Dashboard() {
           {clinic.name} · {formatDate(locale, today)}
         </p>
       </div>
+
+      {requests.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.dashboard.requestsTitle}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="divide-y rounded-md border">
+              {requests.map((request) => (
+                <li
+                  key={request.id}
+                  className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5"
+                >
+                  <span className="min-w-0 flex-1">
+                    <Link
+                      href={`/${locale}/patients/${request.patientId}`}
+                      className="font-medium underline-offset-4 hover:underline"
+                    >
+                      {request.patientName}
+                    </Link>
+                    <span className="ms-2 text-sm text-muted-foreground">
+                      {formatDayShort(
+                        locale,
+                        new Date(request.startsAt),
+                        clinic.timezone,
+                      )}{" "}
+                      <span dir="ltr">
+                        {formatTime(
+                          locale,
+                          new Date(request.startsAt),
+                          clinic.timezone,
+                        )}
+                      </span>
+                      {request.treatmentName
+                        ? ` · ${request.treatmentName}`
+                        : ""}
+                    </span>
+                  </span>
+                  <span className="flex gap-2">
+                    {(
+                      [
+                        { status: "confirmed", label: t.dashboard.approve },
+                        { status: "cancelled", label: t.dashboard.decline },
+                      ] as const
+                    ).map(({ status, label }) => (
+                      <form key={status} action={setStatusFromForm}>
+                        <input type="hidden" name="locale" value={locale} />
+                        <input
+                          type="hidden"
+                          name="appointmentId"
+                          value={request.id}
+                        />
+                        <input type="hidden" name="status" value={status} />
+                        <input
+                          type="hidden"
+                          name="returnTo"
+                          value={`/${locale}/dashboard`}
+                        />
+                        <Button
+                          type="submit"
+                          size="sm"
+                          variant={
+                            status === "confirmed" ? "default" : "outline"
+                          }
+                          aria-label={`${label}: ${request.patientName}`}
+                        >
+                          {label}
+                        </Button>
+                      </form>
+                    ))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>

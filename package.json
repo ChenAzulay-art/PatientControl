@@ -27,6 +27,7 @@
     "@fullcalendar/timegrid": "^6.1.22",
     "@vercel/functions": "^3.10.6",
     "better-auth": "^1.7.18",
+    "botid": "^1.5.12",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
     "drizzle-orm": "^0.45.4",

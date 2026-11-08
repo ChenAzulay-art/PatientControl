@@ -1,3 +1,4 @@
+import { withBotId } from "botid/next/config";
 import type { NextConfig } from "next";
 
 /**
@@ -45,4 +46,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Vercel BotID: adds the routes its invisible challenge needs (see instrumentation-client.ts).
+export default withBotId(nextConfig);

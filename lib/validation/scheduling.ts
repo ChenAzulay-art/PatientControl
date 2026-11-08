@@ -33,6 +33,7 @@ export const treatmentTypeSchema = z.object({
   durationMinutes: duration,
   priceAgorot,
   color: z.enum(treatmentColorNames, { message: "colorInvalid" }),
+  bookableOnline: z.boolean().default(false),
 });
 export type TreatmentTypeInput = z.infer<typeof treatmentTypeSchema>;
 

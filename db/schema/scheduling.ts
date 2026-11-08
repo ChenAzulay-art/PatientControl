@@ -10,6 +10,7 @@ import {
   time,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import { organization, user } from "./auth";
@@ -110,9 +111,15 @@ export const appointments = pgTable(
     createdBy: text("created_by").references(() => user.id, {
       onDelete: "set null",
     }),
+    /**
+     * Hash of the secret in the patient's cancel link (online bookings).
+     * The secret itself is only in the email.
+     */
+    cancelTokenHash: text("cancel_token_hash"),
     ...timestamps,
   },
   (t) => [
+    uniqueIndex("appointments_cancel_token_uidx").on(t.cancelTokenHash),
     // Lets session summaries require the same clinic as their appointment.
     unique("appointments_clinic_id_id_key").on(t.clinicId, t.id),
     index("appointments_clinic_starts_idx").on(t.clinicId, t.startsAt),

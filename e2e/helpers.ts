@@ -9,8 +9,14 @@ export { he };
 
 type SentEmail = { to: string; subject: string; text: string };
 
-/** Waits for the newest email to `to` in the test outbox and returns it. */
-export async function waitForEmail(to: string): Promise<SentEmail> {
+/**
+ * Waits for the newest email to `to` in the test outbox (optionally one
+ * whose subject contains `subject`) and returns it.
+ */
+export async function waitForEmail(
+  to: string,
+  subject?: string,
+): Promise<SentEmail> {
   let found: SentEmail | undefined;
   await expect
     .poll(
@@ -27,7 +33,10 @@ export async function waitForEmail(to: string): Promise<SentEmail> {
                 ) as SentEmail,
             ),
         );
-        found = emails.find((email) => email.to === to);
+        found = emails.find(
+          (email) =>
+            email.to === to && (!subject || email.subject.includes(subject)),
+        );
         return Boolean(found);
       },
       { timeout: 15_000 },
@@ -110,7 +119,12 @@ export async function signUpPractitioner(
 /** Adds a treatment type in Settings and waits for it to appear in the list. */
 export async function addTreatmentType(
   page: Page,
-  type: { name: string; durationMinutes?: number; price?: string },
+  type: {
+    name: string;
+    durationMinutes?: number;
+    price?: string;
+    bookableOnline?: boolean;
+  },
 ) {
   await page.goto("/he/settings");
   // The add form is the last form in the section (each list row has its own small form).
@@ -123,6 +137,9 @@ export async function addTreatmentType(
   }
   if (type.price) {
     await form.getByLabel(he.treatmentTypes.price).fill(type.price);
+  }
+  if (type.bookableOnline) {
+    await form.getByLabel(he.treatmentTypes.bookableOnline).check();
   }
   await form.getByRole("button", { name: he.treatmentTypes.add }).click();
   await expect(

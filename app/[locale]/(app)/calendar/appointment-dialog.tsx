@@ -208,6 +208,9 @@ function AppointmentDetails({
         <DialogTitle className="flex flex-wrap items-center gap-2">
           {appointment.patientName}
           <StatusBadge status={appointment.status} t={t} />
+          {appointment.source === "online" ? (
+            <Badge variant="secondary">{t.onlineBadge}</Badge>
+          ) : null}
         </DialogTitle>
         <DialogDescription>
           {start.toLocaleString({

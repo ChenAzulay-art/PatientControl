@@ -1,4 +1,12 @@
-import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { organization, user } from "./auth";
 
 const timestamps = {
@@ -18,7 +26,32 @@ export const clinicSettings = pgTable("clinic_settings", {
     .references(() => organization.id, { onDelete: "cascade" }),
   timezone: text("timezone").notNull().default("Asia/Jerusalem"),
   defaultLocale: text("default_locale").notNull().default("he"),
+  /** The public booking page at /book/<slug> is open. */
+  bookingEnabled: boolean("booking_enabled").notNull().default(false),
+  /** Online bookings are confirmed at once; otherwise they wait for approval. */
+  bookingAutoConfirm: boolean("booking_auto_confirm").notNull().default(true),
+  /** How long before a slot it can still be booked online. */
+  bookingMinNoticeMinutes: integer("booking_min_notice_minutes")
+    .notNull()
+    .default(720),
+  /** How many days ahead patients can book. */
+  bookingWindowDays: integer("booking_window_days").notNull().default(30),
+  /** Offered start times are this many minutes apart. */
+  bookingSlotIntervalMinutes: integer("booking_slot_interval_minutes")
+    .notNull()
+    .default(30),
   ...timestamps,
+});
+
+/**
+ * Fixed-window counters for the public booking page (per IP address and per
+ * phone number). Keys are keyed hashes, so no phone numbers or addresses
+ * are stored.
+ */
+export const publicRateLimits = pgTable("public_rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull(),
+  resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
 });
 
 /** Who did what and when. Identifiers only: never patient details. */

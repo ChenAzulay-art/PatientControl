@@ -73,6 +73,9 @@ export function TreatmentTypeList({
                   ? ` · ${currency.format(item.priceAgorot / 100)}`
                   : ""}
               </span>
+              {item.bookableOnline && item.active ? (
+                <Badge variant="secondary">{t.onlineBadge}</Badge>
+              ) : null}
               {item.active ? null : (
                 <Badge variant="outline">{t.inactive}</Badge>
               )}

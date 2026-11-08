@@ -6,6 +6,7 @@ import {
   removeAvailabilityException,
   setWorkingHours,
 } from "@/lib/dal/availability";
+import { updateBookingSettings } from "@/lib/dal/booking-settings";
 import { requireClinic } from "@/lib/dal/session";
 import {
   createTreatmentType,
@@ -13,6 +14,7 @@ import {
   updateTreatmentType,
 } from "@/lib/dal/treatment-types";
 import { defaultLocale, isLocale } from "@/lib/i18n/config";
+import { bookingSettingsSchema } from "@/lib/validation/booking";
 import {
   availabilityExceptionSchema,
   treatmentTypeSchema,
@@ -48,6 +50,7 @@ export async function saveTreatmentType(
     durationMinutes: String(formData.get("durationMinutes") ?? ""),
     priceAgorot: String(formData.get("price") ?? ""),
     color: String(formData.get("color") ?? ""),
+    bookableOnline: formData.get("bookableOnline") === "on",
   });
   if (!parsed.success) {
     return {
@@ -141,4 +144,25 @@ export async function removeException(formData: FormData) {
   const ctx = await requireClinic(locale);
   await removeAvailabilityException(ctx, String(formData.get("id") ?? ""));
   redirect(`/${locale}/settings#exceptions`);
+}
+
+/* ---------- Online booking ---------- */
+
+export type BookingSettingsState = { error?: "invalid"; savedAt?: number };
+
+export async function saveBookingSettings(
+  _prev: BookingSettingsState,
+  formData: FormData,
+): Promise<BookingSettingsState> {
+  const ctx = await requireClinic(localeFrom(formData.get("locale")));
+  const parsed = bookingSettingsSchema.safeParse({
+    enabled: formData.get("enabled") === "on",
+    autoConfirm: formData.get("autoConfirm") === "on",
+    minNoticeMinutes: formData.get("minNoticeMinutes"),
+    windowDays: formData.get("windowDays"),
+    intervalMinutes: formData.get("intervalMinutes"),
+  });
+  if (!parsed.success) return { error: "invalid" };
+  await updateBookingSettings(ctx, parsed.data);
+  return { savedAt: Date.now() };
 }

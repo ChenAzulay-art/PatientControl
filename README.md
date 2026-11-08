@@ -41,6 +41,7 @@ Every account must turn on two-step verification with an authenticator app befor
 - `lib/dal/` – the only way pages and actions reach clinic data; checks the session, two-step verification and clinic membership, scopes every query to the clinic and records patient views and changes in the audit log
 - `lib/scheduling/` – time-zone conversions (clinic wall-clock time ↔ stored instants, including daylight-saving changes) and calendar colors; overlapping appointments are blocked by a database constraint in `drizzle/0002_scheduling.sql`
 - `lib/dal/session-notes.ts` – treatment summaries: drafts save automatically, saving makes them final, and every later change is kept as a version
+- `lib/dal/public-booking.ts` and `app/[locale]/book/` – online booking without a login: free times from `lib/scheduling/slots.ts`, booking, and the cancel link; protected by Vercel BotID (`instrumentation-client.ts`) and rate limits (`lib/rate-limit.ts`)
 - `lib/crypto.ts` – encryption of the ID number, medical background and important notes
 - `e2e/` – Playwright end-to-end tests
 - `lib/auth.ts` – Better Auth configuration (email verification, two-step verification, rate limits, clinics as organizations)

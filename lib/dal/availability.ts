@@ -3,18 +3,13 @@ import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { db } from "@/db";
 import { availabilityExceptions, availabilityRules } from "@/db/schema";
 import { recordAudit } from "@/lib/audit";
-import { minutesOfDay, shortTime } from "@/lib/scheduling/time";
+import type { AvailabilityException } from "@/lib/scheduling/slots";
+import { shortTime } from "@/lib/scheduling/time";
 import type { WorkingHours } from "@/lib/validation/scheduling";
 import { type ClinicContext, isUuid } from "./context";
 
-export type TimeRange = { start: string; end: string };
-
-export type AvailabilityException = {
-  id: string;
-  date: string;
-  /** null = closed all day */
-  range: TimeRange | null;
-};
+export type { AvailabilityException, TimeRange } from "@/lib/scheduling/slots";
+export { hoursForDate } from "@/lib/scheduling/slots";
 
 /** Weekly hours as seven lists of ranges (index 0 = Sunday), sorted by start. */
 export async function getWorkingHours(
@@ -135,24 +130,4 @@ export async function removeAvailabilityException(
     entityId: id,
   });
   return true;
-}
-
-/**
- * The open hours for one date: the exception if there is one, otherwise the
- * weekly ranges for that weekday. Used to show working hours on the
- * calendar and, later, to offer online booking slots.
- */
-export function hoursForDate(
-  weekly: WorkingHours,
-  exceptions: AvailabilityException[],
-  date: string,
-  weekday: number,
-): TimeRange[] {
-  const dayExceptions = exceptions.filter((e) => e.date === date);
-  if (dayExceptions.length > 0) {
-    return dayExceptions
-      .flatMap((e) => (e.range ? [e.range] : []))
-      .sort((a, b) => minutesOfDay(a.start) - minutesOfDay(b.start));
-  }
-  return weekly[weekday] ?? [];
 }
