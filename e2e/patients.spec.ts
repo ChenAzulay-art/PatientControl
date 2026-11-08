@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { format } from "../lib/i18n/format";
-import { he, signUpPractitioner } from "./helpers";
+import { addTreatmentType, he, signUpPractitioner } from "./helpers";
 
 const p = he.patients;
 
@@ -22,12 +22,7 @@ test("a practitioner manages patient cards from sign-up to archive", async ({
   ).toBeVisible();
 
   // Add a treatment type in Settings.
-  await page.goto("/he/settings");
-  await page.getByPlaceholder(he.treatmentTypes.name).fill("רפלקסולוגיה");
-  await page.getByRole("button", { name: he.treatmentTypes.add }).click();
-  await expect(
-    page.locator("#treatment-types li", { hasText: "רפלקסולוגיה" }),
-  ).toBeVisible();
+  await addTreatmentType(page, { name: "רפלקסולוגיה" });
 
   // New patient: an invalid ID number is caught before saving.
   await page.goto("/he/patients");

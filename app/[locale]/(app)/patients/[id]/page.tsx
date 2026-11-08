@@ -2,6 +2,7 @@ import {
   Archive,
   ArchiveRestore,
   ArrowLeft,
+  CalendarPlus,
   Pencil,
   TriangleAlert,
 } from "lucide-react";
@@ -13,12 +14,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { listPatientAppointments } from "@/lib/dal/appointments";
 import { getPatient } from "@/lib/dal/patients";
 import { requireClinic } from "@/lib/dal/session";
 import { ageOn, formatDate, formatDateTime, languageNames } from "@/lib/format";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
 import { format } from "@/lib/i18n/format";
 import { formatPhone } from "@/lib/validation/phone";
+import { AppointmentList } from "../../calendar/appointment-list";
 import { setArchived } from "../actions";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -63,6 +66,7 @@ async function PatientCard({
 
   const patient = await getPatient(ctx, id);
   if (!patient) notFound();
+  const appointments = await listPatientAppointments(ctx, patient.id);
 
   const c = t.patients.card;
   const none = <span className="text-muted-foreground">{c.none}</span>;
@@ -231,6 +235,57 @@ async function PatientCard({
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+          <CardTitle>{c.appointments}</CardTitle>
+          {archived ? null : (
+            <Button asChild size="sm">
+              <Link href={`/${locale}/calendar?patient=${patient.id}`}>
+                <CalendarPlus aria-hidden />
+                {c.newAppointment}
+              </Link>
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent className="flex flex-col gap-5">
+          <section className="flex flex-col gap-2">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              {c.upcoming}
+            </h3>
+            {appointments.upcoming.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{c.noUpcoming}</p>
+            ) : (
+              <AppointmentList
+                locale={locale}
+                t={t.appointment}
+                timezone={ctx.clinic.timezone}
+                appointments={appointments.upcoming}
+                show="date"
+                returnTo={`/${locale}/patients/${patient.id}`}
+              />
+            )}
+          </section>
+          <section className="flex flex-col gap-2">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              {c.past}
+            </h3>
+            {appointments.past.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{c.noPast}</p>
+            ) : (
+              <AppointmentList
+                locale={locale}
+                t={t.appointment}
+                timezone={ctx.clinic.timezone}
+                appointments={appointments.past}
+                show="date"
+                returnTo={`/${locale}/patients/${patient.id}`}
+                quickActions
+              />
+            )}
+          </section>
+        </CardContent>
+      </Card>
 
       <p className="text-sm text-muted-foreground">
         {format(c.updated, {

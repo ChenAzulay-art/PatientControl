@@ -20,6 +20,11 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.22",
+    "@fullcalendar/interaction": "^6.1.22",
+    "@fullcalendar/luxon3": "^6.1.22",
+    "@fullcalendar/react": "^6.1.22",
+    "@fullcalendar/timegrid": "^6.1.22",
     "@vercel/functions": "^3.10.6",
     "better-auth": "^1.7.18",
     "class-variance-authority": "^0.7.1",
@@ -27,6 +32,7 @@
     "drizzle-orm": "^0.45.4",
     "input-otp": "^1.5.0",
     "lucide-react": "^1.69.0",
+    "luxon": "^3.7.2",
     "next": "16.4.5",
     "pg": "^8.23.1",
     "qrcode": "^1.5.4",
@@ -48,6 +54,7 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",
+    "@types/luxon": "^3.7.6",
     "@types/node": "^24.19.2",
     "@types/pg": "^8.23.1",
     "@types/qrcode": "^1.5.6",

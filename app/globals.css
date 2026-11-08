@@ -128,3 +128,54 @@
     @apply font-sans;
   }
 }
+
+/* FullCalendar, themed to match the app (see app/[locale]/(app)/calendar). */
+.clinic-calendar {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--card);
+  --fc-neutral-bg-color: var(--muted);
+  --fc-today-bg-color: color-mix(in oklch, var(--primary) 6%, transparent);
+  --fc-now-indicator-color: oklch(0.577 0.245 27.325);
+  --fc-non-business-color: color-mix(in oklch, var(--muted) 70%, transparent);
+  --fc-highlight-color: color-mix(in oklch, var(--primary) 12%, transparent);
+  --fc-button-bg-color: var(--secondary);
+  --fc-button-border-color: var(--border);
+  --fc-button-text-color: var(--secondary-foreground);
+  --fc-button-hover-bg-color: var(--muted);
+  --fc-button-hover-border-color: var(--border);
+  --fc-button-active-bg-color: var(--primary);
+  --fc-button-active-border-color: var(--primary);
+  font-size: 0.875rem;
+}
+.clinic-calendar .fc .fc-button {
+  border-radius: var(--radius-md);
+  padding: 0.3rem 0.65rem;
+  font-weight: 500;
+  text-transform: none;
+}
+.clinic-calendar .fc .fc-button-primary:not(:disabled).fc-button-active {
+  color: var(--primary-foreground);
+}
+.clinic-calendar .fc .fc-toolbar-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.clinic-calendar .fc .fc-toolbar {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.clinic-calendar .fc-event {
+  cursor: pointer;
+  border-inline-start-width: 3px;
+}
+.clinic-calendar .appointment-cancelled {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+.clinic-calendar .appointment-no_show {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 6px,
+    rgb(0 0 0 / 0.06) 6px 12px
+  );
+}

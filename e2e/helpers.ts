@@ -106,3 +106,26 @@ export async function signUpPractitioner(
 
   return { secret };
 }
+
+/** Adds a treatment type in Settings and waits for it to appear in the list. */
+export async function addTreatmentType(
+  page: Page,
+  type: { name: string; durationMinutes?: number; price?: string },
+) {
+  await page.goto("/he/settings");
+  // The add form is the last form in the section (each list row has its own small form).
+  const form = page.locator("#treatment-types form").last();
+  await form.getByLabel(he.treatmentTypes.name).fill(type.name);
+  if (type.durationMinutes) {
+    await form
+      .getByLabel(he.treatmentTypes.duration)
+      .fill(String(type.durationMinutes));
+  }
+  if (type.price) {
+    await form.getByLabel(he.treatmentTypes.price).fill(type.price);
+  }
+  await form.getByRole("button", { name: he.treatmentTypes.add }).click();
+  await expect(
+    page.locator("#treatment-types li", { hasText: type.name }),
+  ).toBeVisible();
+}

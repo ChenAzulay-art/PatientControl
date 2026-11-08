@@ -319,3 +319,17 @@ export async function setPatientArchived(
   });
   return true;
 }
+
+/** Just the name, for pre-filling a patient in the booking dialog. */
+export async function getPatientName(
+  ctx: ClinicContext,
+  id: string,
+): Promise<{ id: string; fullName: string } | null> {
+  if (!isUuid(id)) return null;
+  const [row] = await db
+    .select({ id: patients.id, fullName: patients.fullName })
+    .from(patients)
+    .where(and(eq(patients.id, id), eq(patients.clinicId, ctx.clinic.id)))
+    .limit(1);
+  return row ?? null;
+}
