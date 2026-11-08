@@ -35,6 +35,9 @@ export default async function AppLayout({
             <Link href={`/${locale}/patients`}>{t.nav.patients}</Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
+            <Link href={`/${locale}/calendar`}>{t.nav.calendar}</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
             <Link href={`/${locale}/settings`}>{t.nav.settings}</Link>
           </Button>
         </div>

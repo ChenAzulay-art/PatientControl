@@ -31,6 +31,8 @@ export function LoginForm({
       const { data, error } = await authClient.signIn.email({
         email: String(form.get("email") ?? ""),
         password: String(form.get("password") ?? ""),
+        // If the email isn't verified yet, the new link sent at login leads to two-step setup.
+        callbackURL: `/${locale}/setup-2fa`,
       });
 
       if (error) {

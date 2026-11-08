@@ -6,6 +6,7 @@ import { isLocale, LOCALE_COOKIE, negotiateLocale } from "@/lib/i18n/config";
 const PROTECTED_PREFIXES = [
   "/dashboard",
   "/patients",
+  "/calendar",
   "/settings",
   "/onboarding",
   "/setup-2fa",

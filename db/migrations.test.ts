@@ -60,6 +60,12 @@ describe("database migrations", () => {
       "rate_limit",
       "clinic_settings",
       "audit_log",
+      "treatment_types",
+      "patients",
+      "patient_treatment_types",
+      "availability_rules",
+      "availability_exceptions",
+      "appointments",
     ]) {
       expect(tables).toContain(table);
     }
@@ -127,5 +133,41 @@ describe("database migrations", () => {
       .from(schema.clinicSettings)
       .where(eq(schema.clinicSettings.clinicId, clinic.id));
     expect(rows).toEqual([]);
+  });
+
+  it("rejects overlapping appointments at the database level", async () => {
+    const { clinic } = await createUserAndClinic("overlap");
+    const [patient] = await db
+      .insert(schema.patients)
+      .values({ clinicId: clinic.id, fullName: "P", phone: "+972501234567" })
+      .returning();
+    const at = (iso: string) => new Date(iso);
+    const book = (start: string, end: string, status = "scheduled" as const) =>
+      db.insert(schema.appointments).values({
+        clinicId: clinic.id,
+        patientId: patient.id,
+        startsAt: at(start),
+        endsAt: at(end),
+        status,
+      });
+
+    await book("2026-05-01T07:00:00Z", "2026-05-01T08:00:00Z");
+    await expect(
+      book("2026-05-01T07:30:00Z", "2026-05-01T08:30:00Z"),
+    ).rejects.toThrow();
+    // Back-to-back is fine.
+    await book("2026-05-01T08:00:00Z", "2026-05-01T09:00:00Z");
+    // A cancelled appointment doesn't block the time.
+    await db.insert(schema.appointments).values({
+      clinicId: clinic.id,
+      patientId: patient.id,
+      startsAt: at("2026-05-01T07:15:00Z"),
+      endsAt: at("2026-05-01T07:45:00Z"),
+      status: "cancelled",
+    });
+    // An appointment can't end before it starts.
+    await expect(
+      book("2026-05-02T09:00:00Z", "2026-05-02T08:00:00Z"),
+    ).rejects.toThrow();
   });
 });

@@ -111,15 +111,19 @@
   "nav": {
     "dashboard": "Today",
     "settings": "Settings",
-    "patients": "Patients"
+    "patients": "Patients",
+    "calendar": "Calendar"
   },
   "dashboard": {
     "title": "Today",
     "greeting": "Hello, {name}",
     "emptyTitle": "Your clinic is ready",
-    "emptyBody": "Add your patients now. The calendar and session summaries are coming in the next stages.",
+    "emptyBody": "Add patients and book appointments. Session summaries are coming in the next stage.",
     "addPatient": "Add a patient",
-    "viewPatients": "View patients"
+    "viewPatients": "View patients",
+    "todayTitle": "Today's appointments",
+    "todayEmpty": "No appointments today.",
+    "openCalendar": "Open calendar"
   },
   "settings": {
     "title": "Settings",
@@ -181,7 +185,13 @@
       "restore": "Restore patient",
       "archivedNotice": "This patient is archived. Their record is kept, but they don't appear in the patient list.",
       "back": "All patients",
-      "updated": "Last updated {date}"
+      "updated": "Last updated {date}",
+      "appointments": "Appointments",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "noUpcoming": "No upcoming appointments.",
+      "noPast": "No past appointments.",
+      "newAppointment": "Book appointment"
     },
     "form": {
       "newTitle": "New patient",
@@ -223,7 +233,7 @@
   },
   "treatmentTypes": {
     "title": "Treatment types",
-    "description": "The treatments you offer. Choose them on each patient card.",
+    "description": "The treatments you offer, with their usual length and price. Choose them on patient cards and appointments.",
     "name": "Treatment name",
     "add": "Add",
     "empty": "No treatment types yet.",
@@ -231,6 +241,107 @@
     "hide": "Hide",
     "show": "Show",
     "duplicate": "You already have a treatment type with this name.",
-    "nameInvalid": "Enter a name of 2–60 characters."
+    "nameInvalid": "Enter a name of 2–60 characters.",
+    "duration": "Length (minutes)",
+    "price": "Price (₪)",
+    "priceHint": "Optional",
+    "color": "Calendar color",
+    "save": "Save",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "durationInvalid": "The length must be between 5 and 480 minutes.",
+    "priceInvalid": "Enter a price like 250 or 250.50.",
+    "colorInvalid": "Choose a color.",
+    "notFound": "This treatment type wasn't found.",
+    "colors": {
+      "teal": "Teal",
+      "blue": "Blue",
+      "violet": "Violet",
+      "rose": "Rose",
+      "amber": "Amber",
+      "green": "Green",
+      "orange": "Orange",
+      "slate": "Gray"
+    }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "newAppointment": "New appointment",
+    "loadError": "The calendar couldn't load. Refresh the page to try again.",
+    "moveError": "The appointment couldn't be moved.",
+    "outsideHours": "Outside working hours",
+    "showCancelled": "Show cancelled"
+  },
+  "appointment": {
+    "newTitle": "New appointment",
+    "detailsTitle": "Appointment",
+    "patient": "Patient",
+    "patientSearch": "Search by name or phone",
+    "patientNoResults": "No matching patients.",
+    "changePatient": "Change",
+    "treatmentType": "Treatment",
+    "noTreatmentType": "Not specified",
+    "date": "Date",
+    "time": "Start time",
+    "duration": "Length (minutes)",
+    "minutes": "{n} min",
+    "save": "Book appointment",
+    "saveChanges": "Save changes",
+    "close": "Close",
+    "openPatient": "Open patient card",
+    "status": {
+      "scheduled": "Scheduled",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "no_show": "No-show"
+    },
+    "actions": {
+      "confirm": "Mark confirmed",
+      "complete": "Mark completed",
+      "noShow": "Mark no-show",
+      "cancel": "Cancel appointment",
+      "restore": "Restore appointment"
+    },
+    "errors": {
+      "overlap": "This time overlaps another appointment.",
+      "patientRequired": "Choose a patient.",
+      "patientNotFound": "That patient wasn't found.",
+      "dateInvalid": "Enter a valid date.",
+      "timeInvalid": "Enter a valid start time.",
+      "durationInvalid": "The length must be between 5 and 480 minutes.",
+      "notFound": "This appointment wasn't found.",
+      "rangeTooLong": "That date range is too long.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "reschedule": "Reschedule"
+  },
+  "workingHours": {
+    "title": "Working hours",
+    "description": "Your regular weekly hours. They're shaded on the calendar and, later, used for online booking.",
+    "closed": "Closed",
+    "addRange": "Add hours",
+    "removeRange": "Remove",
+    "from": "From",
+    "to": "To",
+    "save": "Save working hours",
+    "saved": "Working hours saved.",
+    "errors": {
+      "rangeInvalid": "Each range must end after it starts.",
+      "rangesOverlap": "Ranges on the same day can't overlap.",
+      "generic": "The hours couldn't be saved."
+    }
+  },
+  "exceptions": {
+    "title": "Days off and special hours",
+    "description": "Dates that differ from your weekly hours, such as holidays or a shorter day.",
+    "date": "Date",
+    "closedAllDay": "Closed all day",
+    "add": "Add date",
+    "remove": "Remove",
+    "none": "No upcoming dates.",
+    "closedLabel": "Closed",
+    "rangeInvalid": "Enter a time range that ends after it starts.",
+    "dateInvalid": "Enter a valid date."
   }
 }

@@ -3,9 +3,20 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { treatmentTypes } from "@/db/schema";
 import { recordAudit } from "@/lib/audit";
+import type { TreatmentTypeInput } from "@/lib/validation/scheduling";
 import { type ClinicContext, isUniqueViolation, isUuid } from "./context";
 
-export type TreatmentType = { id: string; name: string; active: boolean };
+export type TreatmentType = {
+  id: string;
+  name: string;
+  durationMinutes: number;
+  priceAgorot: number | null;
+  color: string;
+  active: boolean;
+};
+
+/** Shorthand used by tests and callers that only care about the name. */
+const defaults = { durationMinutes: 60, priceAgorot: null, color: "teal" };
 
 export async function listTreatmentTypes(
   ctx: ClinicContext,
@@ -15,6 +26,9 @@ export async function listTreatmentTypes(
     .select({
       id: treatmentTypes.id,
       name: treatmentTypes.name,
+      durationMinutes: treatmentTypes.durationMinutes,
+      priceAgorot: treatmentTypes.priceAgorot,
+      color: treatmentTypes.color,
       active: treatmentTypes.active,
     })
     .from(treatmentTypes)
@@ -31,12 +45,14 @@ export async function listTreatmentTypes(
 
 export async function createTreatmentType(
   ctx: ClinicContext,
-  name: string,
+  input: TreatmentTypeInput | string,
 ): Promise<{ ok: true; id: string } | { ok: false; error: "duplicate" }> {
+  const values =
+    typeof input === "string" ? { ...defaults, name: input } : input;
   try {
     const [row] = await db
       .insert(treatmentTypes)
-      .values({ clinicId: ctx.clinic.id, name })
+      .values({ clinicId: ctx.clinic.id, ...values })
       .returning({ id: treatmentTypes.id });
     await recordAudit({
       actorId: ctx.user.id,
@@ -50,6 +66,39 @@ export async function createTreatmentType(
     if (isUniqueViolation(error)) return { ok: false, error: "duplicate" };
     throw error;
   }
+}
+
+/** Changes name, duration, price or color. Existing appointments keep their times. */
+export async function updateTreatmentType(
+  ctx: ClinicContext,
+  id: string,
+  input: TreatmentTypeInput,
+): Promise<{ ok: true } | { ok: false; error: "duplicate" | "notFound" }> {
+  if (!isUuid(id)) return { ok: false, error: "notFound" };
+  try {
+    const rows = await db
+      .update(treatmentTypes)
+      .set(input)
+      .where(
+        and(
+          eq(treatmentTypes.id, id),
+          eq(treatmentTypes.clinicId, ctx.clinic.id),
+        ),
+      )
+      .returning({ id: treatmentTypes.id });
+    if (rows.length === 0) return { ok: false, error: "notFound" };
+  } catch (error) {
+    if (isUniqueViolation(error)) return { ok: false, error: "duplicate" };
+    throw error;
+  }
+  await recordAudit({
+    actorId: ctx.user.id,
+    clinicId: ctx.clinic.id,
+    action: "treatment_type.updated",
+    entity: "treatment_type",
+    entityId: id,
+  });
+  return { ok: true };
 }
 
 /** Hides a treatment type from new patients without touching existing links. */

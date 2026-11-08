@@ -25,10 +25,7 @@ const timestamps = {
     .$onUpdate(() => new Date()),
 };
 
-/**
- * Kinds of treatment a clinic offers (reflexology, physiotherapy, ...).
- * The scheduling stage adds duration, price and online booking.
- */
+/** Kinds of treatment a clinic offers (reflexology, physiotherapy, ...). */
 export const treatmentTypes = pgTable(
   "treatment_types",
   {
@@ -37,6 +34,14 @@ export const treatmentTypes = pgTable(
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
+    /** Default length of an appointment of this type. */
+    durationMinutes: integer("duration_minutes").notNull().default(60),
+    /** Price in agorot (1/100 shekel), or null if not set. */
+    priceAgorot: integer("price_agorot"),
+    /** One of the calendar colors in lib/scheduling/colors.ts. */
+    color: text("color").notNull().default("teal"),
+    /** Offered on the public booking page (online booking stage). */
+    bookableOnline: boolean("bookable_online").notNull().default(false),
     active: boolean("active").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
     ...timestamps,

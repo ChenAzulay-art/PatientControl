@@ -1,19 +1,16 @@
 // @vitest-environment node
 import { randomBytes } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { migrate } from "drizzle-orm/pglite/migrator";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import * as schema from "@/db/schema";
 import type { PatientInput } from "@/lib/validation/patient";
+import { makeClinic as makeTestClinic } from "@/test/db";
 import type { ClinicContext } from "./context";
 
 // Run the real data access code against an in-memory Postgres.
-vi.mock("@/db", async () => {
-  const { PGlite } = await import("@electric-sql/pglite");
-  const { drizzle } = await import("drizzle-orm/pglite");
-  const s = await import("@/db/schema");
-  return { db: drizzle({ client: new PGlite(), schema: s }) };
-});
+vi.mock("@/db", async () => ({
+  db: await (await import("@/test/db")).createTestDb(),
+}));
 
 const { db } = await import("@/db");
 const {
@@ -29,37 +26,7 @@ const { createTreatmentType, listTreatmentTypes, setTreatmentTypeActive } =
 
 process.env.DATA_ENCRYPTION_KEY = randomBytes(32).toString("base64");
 
-async function makeClinic(suffix: string): Promise<ClinicContext> {
-  const now = new Date();
-  await db.insert(schema.user).values({
-    id: `user-${suffix}`,
-    name: `Practitioner ${suffix}`,
-    email: `${suffix}@example.test`,
-    createdAt: now,
-    updatedAt: now,
-  });
-  await db.insert(schema.organization).values({
-    id: `clinic-${suffix}`,
-    name: `Clinic ${suffix}`,
-    slug: `clinic-${suffix}`,
-    createdAt: now,
-  });
-  return {
-    user: {
-      id: `user-${suffix}`,
-      name: `Practitioner ${suffix}`,
-      email: `${suffix}@example.test`,
-      twoFactorEnabled: true,
-    },
-    clinic: {
-      id: `clinic-${suffix}`,
-      name: `Clinic ${suffix}`,
-      slug: `clinic-${suffix}`,
-      role: "owner",
-      timezone: "Asia/Jerusalem",
-    },
-  };
-}
+const makeClinic = (suffix: string) => makeTestClinic(db, suffix);
 
 function input(overrides: Partial<PatientInput> = {}): PatientInput {
   return {
@@ -81,7 +48,6 @@ let clinicA: ClinicContext;
 let clinicB: ClinicContext;
 
 beforeAll(async () => {
-  await migrate(db as never, { migrationsFolder: "drizzle" });
   clinicA = await makeClinic("a");
   clinicB = await makeClinic("b");
 });

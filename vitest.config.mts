@@ -15,6 +15,8 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    // Database tests start an in-memory Postgres and run every migration first.
+    hookTimeout: 60_000,
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.{test,spec}.{ts,tsx}"],
     exclude: ["node_modules", ".next", ".next-e2e", ".data", "e2e"],

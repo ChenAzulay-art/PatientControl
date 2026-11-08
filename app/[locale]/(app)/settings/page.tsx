@@ -1,7 +1,6 @@
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, X } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,11 +9,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  getWorkingHours,
+  listAvailabilityExceptions,
+} from "@/lib/dal/availability";
 import { requireClinic } from "@/lib/dal/session";
 import { listTreatmentTypes } from "@/lib/dal/treatment-types";
+import { formatDate, weekdayNames } from "@/lib/format";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
-import { toggleTreatmentType } from "./actions";
-import { AddTreatmentTypeForm } from "./add-treatment-type-form";
+import { todayIn } from "@/lib/scheduling/time";
+import { removeException } from "./actions";
+import { ExceptionForm } from "./exception-form";
+import { TreatmentTypeForm } from "./treatment-type-form";
+import { TreatmentTypeList } from "./treatment-type-list";
+import { WorkingHoursForm } from "./working-hours-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getDictionary()).settings.title };
@@ -50,9 +58,12 @@ async function SettingsDetails() {
   const t = await getDictionary();
   const ctx = await requireClinic(locale);
   const { user, clinic } = ctx;
-  const treatmentTypes = await listTreatmentTypes(ctx, {
-    includeInactive: true,
-  });
+  const today = todayIn(clinic.timezone);
+  const [treatmentTypes, hours, exceptions] = await Promise.all([
+    listTreatmentTypes(ctx, { includeInactive: true }),
+    getWorkingHours(ctx),
+    listAvailabilityExceptions(ctx, { from: today }),
+  ]);
 
   return (
     <>
@@ -72,52 +83,84 @@ async function SettingsDetails() {
           </dl>
         </CardContent>
       </Card>
+
       <Card id="treatment-types" className="scroll-mt-4">
         <CardHeader>
           <CardTitle>{t.treatmentTypes.title}</CardTitle>
           <CardDescription>{t.treatmentTypes.description}</CardDescription>
         </CardHeader>
+        <CardContent className="flex flex-col gap-6">
+          <TreatmentTypeList
+            locale={locale}
+            t={t.treatmentTypes}
+            minutesLabel={t.appointment.minutes}
+            items={treatmentTypes}
+          />
+          <TreatmentTypeForm locale={locale} t={t.treatmentTypes} />
+        </CardContent>
+      </Card>
+
+      <Card id="working-hours" className="scroll-mt-4">
+        <CardHeader>
+          <CardTitle>{t.workingHours.title}</CardTitle>
+          <CardDescription>{t.workingHours.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <WorkingHoursForm
+            locale={locale}
+            t={t.workingHours}
+            weekdayNames={weekdayNames(locale)}
+            initial={hours}
+          />
+        </CardContent>
+      </Card>
+
+      <Card id="exceptions" className="scroll-mt-4">
+        <CardHeader>
+          <CardTitle>{t.exceptions.title}</CardTitle>
+          <CardDescription>{t.exceptions.description}</CardDescription>
+        </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {treatmentTypes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {t.treatmentTypes.empty}
-            </p>
+          {exceptions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t.exceptions.none}</p>
           ) : (
             <ul className="divide-y rounded-md border">
-              {treatmentTypes.map((type) => (
+              {exceptions.map((exception) => (
                 <li
-                  key={type.id}
+                  key={exception.id}
                   className="flex items-center justify-between gap-2 px-3 py-2"
                 >
-                  <span className={type.active ? "" : "text-muted-foreground"}>
-                    {type.name}
-                    {type.active ? null : (
-                      <Badge variant="outline" className="ms-2">
-                        {t.treatmentTypes.inactive}
-                      </Badge>
-                    )}
+                  <span>
+                    <span className="font-medium">
+                      {formatDate(locale, exception.date)}
+                    </span>
+                    <span className="ms-2 text-muted-foreground" dir="auto">
+                      {exception.range
+                        ? `${exception.range.start}–${exception.range.end}`
+                        : t.exceptions.closedLabel}
+                    </span>
                   </span>
-                  <form action={toggleTreatmentType}>
+                  <form action={removeException}>
                     <input type="hidden" name="locale" value={locale} />
-                    <input type="hidden" name="id" value={type.id} />
-                    <input
-                      type="hidden"
-                      name="active"
-                      value={type.active ? "false" : "true"}
-                    />
+                    <input type="hidden" name="id" value={exception.id} />
                     <Button type="submit" variant="ghost" size="sm">
-                      {type.active
-                        ? t.treatmentTypes.hide
-                        : t.treatmentTypes.show}
+                      <X aria-hidden />
+                      {t.exceptions.remove}
                     </Button>
                   </form>
                 </li>
               ))}
             </ul>
           )}
-          <AddTreatmentTypeForm locale={locale} t={t.treatmentTypes} />
+          <ExceptionForm
+            locale={locale}
+            t={t.exceptions}
+            hoursT={t.workingHours}
+            minDate={today}
+          />
         </CardContent>
       </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>{t.settings.account}</CardTitle>

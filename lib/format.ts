@@ -41,3 +41,43 @@ export function ageOn(isoBirthDate: string, today: Date = new Date()): number {
   if (beforeBirthday) age -= 1;
   return age;
 }
+
+/** Weekday names, index 0 = Sunday, in the reader's language. */
+export function weekdayNames(locale: Locale): string[] {
+  const formatter = new Intl.DateTimeFormat(intlLocale[locale], {
+    weekday: "long",
+    timeZone: "UTC",
+  });
+  // 1 January 2023 was a Sunday.
+  return Array.from({ length: 7 }, (_, day) =>
+    formatter.format(new Date(Date.UTC(2023, 0, 1 + day))),
+  );
+}
+
+/** Time of day of an instant in the clinic's time zone, e.g. 09:30. */
+export function formatTime(
+  locale: Locale,
+  value: Date,
+  timeZone: string,
+): string {
+  return new Intl.DateTimeFormat(intlLocale[locale], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone,
+  }).format(value);
+}
+
+/** e.g. "Sun, 9 Nov" / "יום א׳, 9 בנוב׳" for an instant in the clinic's time zone. */
+export function formatDayShort(
+  locale: Locale,
+  value: Date,
+  timeZone: string,
+): string {
+  return new Intl.DateTimeFormat(intlLocale[locale], {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone,
+  }).format(value);
+}
