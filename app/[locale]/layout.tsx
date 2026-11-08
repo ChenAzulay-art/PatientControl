@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
+import { SiteFooter } from "@/components/site-footer";
 import { DirectionProvider } from "@/components/ui/direction";
 import { localeDirection, locales } from "@/lib/i18n/config";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
@@ -28,8 +29,13 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={dir} className={rubik.variable}>
-      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
-        <DirectionProvider dir={dir}>{children}</DirectionProvider>
+      <body className="flex min-h-dvh flex-col bg-background font-sans text-foreground antialiased">
+        <DirectionProvider dir={dir}>
+          {children}
+          <div className="mt-auto">
+            <SiteFooter />
+          </div>
+        </DirectionProvider>
       </body>
     </html>
   );

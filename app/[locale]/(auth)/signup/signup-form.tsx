@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
 import { FormMessage } from "@/components/form-message";
@@ -14,15 +15,18 @@ import { Input } from "@/components/ui/input";
 import { authClient, authErrorKind } from "@/lib/auth-client";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { richFormat } from "@/lib/i18n/rich";
 
 import { MIN_PASSWORD_LENGTH } from "@/lib/validation/auth";
 
 export function SignupForm({
   locale,
   t,
+  legal,
 }: {
   locale: Locale;
   t: Dictionary["auth"];
+  legal: Dictionary["legal"];
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +40,7 @@ export function SignupForm({
     setError(null);
 
     if (!name) return setError(t.errors.nameRequired);
+    if (form.get("agree") !== "on") return setError(t.signup.mustAgree);
     if (password.length < MIN_PASSWORD_LENGTH)
       return setError(t.errors.passwordTooShort);
 
@@ -107,6 +112,36 @@ export function SignupForm({
             {t.signup.passwordHint}
           </FieldDescription>
         </Field>
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="agree"
+            required
+            className="mt-0.5 size-4 shrink-0 accent-primary"
+          />
+          <span>
+            {richFormat(t.signup.agree, {
+              terms: (
+                <Link
+                  href={`/${locale}/terms`}
+                  target="_blank"
+                  className="font-medium underline underline-offset-4"
+                >
+                  {legal.termsInline}
+                </Link>
+              ),
+              privacy: (
+                <Link
+                  href={`/${locale}/privacy`}
+                  target="_blank"
+                  className="font-medium underline underline-offset-4"
+                >
+                  {legal.privacyInline}
+                </Link>
+              ),
+            })}
+          </span>
+        </label>
         <Button type="submit" disabled={pending}>
           {t.signup.submit}
         </Button>

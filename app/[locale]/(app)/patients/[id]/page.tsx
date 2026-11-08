@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
+import { ExportData } from "@/components/export-data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -152,6 +153,7 @@ async function PatientCard({
               {archived ? c.restore : c.archive}
             </Button>
           </form>
+          <ExportData scope="patient" patientId={patient.id} t={t.dataExport} />
         </div>
       </div>
 

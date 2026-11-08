@@ -101,6 +101,25 @@ export async function getClinicForSecureUser(
 }
 
 /**
+ * Like `requireClinic`, but returns null instead of redirecting, for route
+ * handlers that answer with a status code (e.g. the data export).
+ */
+export async function findClinicContext(): Promise<{
+  user: CurrentUser;
+  clinic: CurrentClinic;
+} | null> {
+  const session = await getSession();
+  if (!session) return null;
+  const user = toCurrentUser(session.user);
+  if (!user.twoFactorEnabled) return null;
+  const active = session.session.activeOrganizationId;
+  const clinic =
+    (await findClinicForUser(user.id, active)) ??
+    (await findClinicForUser(user.id, null));
+  return clinic ? { user, clinic } : null;
+}
+
+/**
  * The entry point for every clinic page and action: a signed-in user with
  * two-step verification and a clinic. All clinic data queries take the
  * returned `clinic.id`, never an id from the request.

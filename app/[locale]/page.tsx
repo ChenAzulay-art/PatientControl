@@ -33,7 +33,7 @@ export default async function HomePage() {
           <Link href={`/${locale}/login`}>{t.home.logIn}</Link>
         </Button>
       </SiteHeader>
-      <main className="mx-auto max-w-5xl px-4 py-16 sm:py-24">
+      <main className="mx-auto w-full max-w-5xl px-4 py-16 sm:py-24">
         <section className="max-w-2xl">
           <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             {t.home.title}

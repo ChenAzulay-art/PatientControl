@@ -2,6 +2,7 @@ import { ShieldCheck, X } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
+import { ExportData } from "@/components/export-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +36,7 @@ import { todayIn } from "@/lib/scheduling/time";
 import { siteUrl } from "@/lib/site-url";
 import { removeException } from "./actions";
 import { BookingSettingsForm } from "./booking-settings-form";
+import { DeleteAccountForm } from "./delete-account-form";
 import { ExceptionForm } from "./exception-form";
 import { ReminderSettingsForm } from "./reminder-settings-form";
 import { TreatmentTypeForm } from "./treatment-type-form";
@@ -242,6 +244,35 @@ async function SettingsDetails() {
               </span>
             </Row>
           </dl>
+        </CardContent>
+      </Card>
+
+      <Card id="export" className="scroll-mt-4">
+        <CardHeader>
+          <CardTitle>{t.dataExport.title}</CardTitle>
+          <CardDescription>{t.dataExport.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ExportData scope="clinic" t={t.dataExport} />
+        </CardContent>
+      </Card>
+
+      <Card id="delete-account" className="scroll-mt-4 border-destructive/40">
+        <CardHeader>
+          <CardTitle>{t.deleteAccount.title}</CardTitle>
+          <CardDescription>{t.deleteAccount.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <ul className="list-disc space-y-1 ps-5 text-sm text-muted-foreground">
+            <li>{t.deleteAccount.warningRecords}</li>
+            <li>{t.deleteAccount.warningRetention}</li>
+            <li>{t.deleteAccount.warningBackups}</li>
+          </ul>
+          <DeleteAccountForm
+            locale={locale}
+            t={t.deleteAccount}
+            slug={clinic.slug}
+          />
         </CardContent>
       </Card>
     </>
