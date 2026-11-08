@@ -15,9 +15,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listPatientAppointments } from "@/lib/dal/appointments";
+import { listPatientSessionNotes } from "@/lib/dal/session-notes";
 import { getPatient } from "@/lib/dal/patients";
 import { requireClinic } from "@/lib/dal/session";
-import { ageOn, formatDate, formatDateTime, languageNames } from "@/lib/format";
+import {
+  ageOn,
+  formatDate,
+  formatDateTime,
+  formatDayShort,
+  languageNames,
+} from "@/lib/format";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
 import { format } from "@/lib/i18n/format";
 import { formatPhone } from "@/lib/validation/phone";
@@ -66,7 +73,13 @@ async function PatientCard({
 
   const patient = await getPatient(ctx, id);
   if (!patient) notFound();
-  const appointments = await listPatientAppointments(ctx, patient.id);
+  const [appointments, timeline] = await Promise.all([
+    listPatientAppointments(ctx, patient.id),
+    listPatientSessionNotes(ctx, patient.id),
+  ]);
+  const summaries = new Map(
+    timeline.map((entry) => [entry.appointmentId, entry.status] as const),
+  );
 
   const c = t.patients.card;
   const none = <span className="text-muted-foreground">{c.none}</span>;
@@ -263,6 +276,8 @@ async function PatientCard({
                 appointments={appointments.upcoming}
                 show="date"
                 returnTo={`/${locale}/patients/${patient.id}`}
+                summaries={summaries}
+                summaryT={c}
               />
             )}
           </section>
@@ -280,10 +295,80 @@ async function PatientCard({
                 appointments={appointments.past}
                 show="date"
                 returnTo={`/${locale}/patients/${patient.id}`}
+                summaries={summaries}
+                summaryT={c}
                 quickActions
               />
             )}
           </section>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{c.summaries}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {timeline.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{c.noSummaries}</p>
+          ) : (
+            <ol className="flex flex-col gap-4 border-s ps-4">
+              {timeline.map((entry) => (
+                <li
+                  key={entry.noteId}
+                  className="relative flex flex-col gap-1.5"
+                >
+                  <span
+                    aria-hidden
+                    className="absolute -start-[1.3rem] top-1.5 size-2.5 rounded-full border-2 border-background bg-primary"
+                  />
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <Link
+                      href={`/${locale}/patients/${patient.id}/sessions/${entry.appointmentId}`}
+                      className="font-medium underline-offset-4 hover:underline"
+                    >
+                      {formatDayShort(
+                        locale,
+                        new Date(entry.startsAt),
+                        ctx.clinic.timezone,
+                      )}
+                    </Link>
+                    {entry.treatmentName ? (
+                      <span className="text-muted-foreground">
+                        {entry.treatmentName}
+                      </span>
+                    ) : null}
+                    {entry.status === "draft" ? (
+                      <Badge variant="outline">{c.draftBadge}</Badge>
+                    ) : entry.versionCount > 1 ? (
+                      <Badge variant="secondary">
+                        {format(c.editedBadge, {
+                          n: String(entry.versionCount),
+                        })}
+                      </Badge>
+                    ) : null}
+                  </div>
+                  {entry.body.length > 280 ? (
+                    <details className="text-sm">
+                      <summary className="cursor-pointer whitespace-pre-line text-foreground">
+                        {entry.body.slice(0, 280)}…{" "}
+                        <span className="text-muted-foreground underline underline-offset-4">
+                          {c.showFull}
+                        </span>
+                      </summary>
+                      <p dir="auto" className="mt-2 whitespace-pre-line">
+                        {entry.body}
+                      </p>
+                    </details>
+                  ) : (
+                    <p dir="auto" className="text-sm whitespace-pre-line">
+                      {entry.body}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )}
         </CardContent>
       </Card>
 

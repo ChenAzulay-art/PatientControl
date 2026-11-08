@@ -118,12 +118,14 @@
     "title": "Today",
     "greeting": "Hello, {name}",
     "emptyTitle": "Your clinic is ready",
-    "emptyBody": "Add patients and book appointments. Session summaries are coming in the next stage.",
+    "emptyBody": "Add patients, book appointments and write a summary after each session. Online booking and reminders come in the next stages.",
     "addPatient": "Add a patient",
     "viewPatients": "View patients",
     "todayTitle": "Today's appointments",
     "todayEmpty": "No appointments today.",
-    "openCalendar": "Open calendar"
+    "openCalendar": "Open calendar",
+    "missingTitle": "Summaries to write",
+    "missingEmpty": "Every recent session has a summary."
   },
   "settings": {
     "title": "Settings",
@@ -191,7 +193,14 @@
       "past": "Past",
       "noUpcoming": "No upcoming appointments.",
       "noPast": "No past appointments.",
-      "newAppointment": "Book appointment"
+      "newAppointment": "Book appointment",
+      "summaries": "Session summaries",
+      "noSummaries": "No summaries yet. They appear here after you write them for a session.",
+      "writeSummary": "Write summary",
+      "openSummary": "Summary",
+      "draftBadge": "Draft",
+      "editedBadge": "{n} versions",
+      "showFull": "Show full summary"
     },
     "form": {
       "newTitle": "New patient",
@@ -314,7 +323,9 @@
       "rangeTooLong": "That date range is too long.",
       "generic": "Something went wrong. Please try again."
     },
-    "reschedule": "Reschedule"
+    "reschedule": "Reschedule",
+    "writeSummary": "Write summary",
+    "openSummary": "Open summary"
   },
   "workingHours": {
     "title": "Working hours",
@@ -343,5 +354,37 @@
     "closedLabel": "Closed",
     "rangeInvalid": "Enter a time range that ends after it starts.",
     "dateInvalid": "Enter a valid date."
+  },
+  "summary": {
+    "title": "Session summary",
+    "label": "Treatment summary",
+    "placeholder": "What was done in the session, what you found, how the patient responded, and recommendations for next time.",
+    "saving": "Saving…",
+    "draftSaved": "Draft saved at {time}",
+    "saveError": "The draft couldn't be saved. Check your connection; your text is still here.",
+    "unsaved": "Not saved yet",
+    "finalize": "Save summary",
+    "saveChanges": "Save changes",
+    "savedAt": "Saved at {time}",
+    "statusDraft": "Draft",
+    "statusFinal": "Saved",
+    "versions": "Version history",
+    "versionsDescription": "Every save is kept, and earlier versions can't be changed.",
+    "versionBy": "{date} · {name}",
+    "view": "View",
+    "hide": "Hide",
+    "current": "Current",
+    "completesAppointment": "Saving also marks the appointment as completed.",
+    "editedNote": "Changes after saving are kept as new versions.",
+    "encryptedNote": "The summary is encrypted before it's saved.",
+    "length": "{n} of {max} characters",
+    "backToPatient": "Back to patient card",
+    "errors": {
+      "notFound": "This appointment wasn't found.",
+      "notAllowed": "Summaries can't be written for cancelled or missed appointments.",
+      "alreadyFinal": "This summary was saved in another window. Reload the page to see the latest text.",
+      "empty": "Write the summary before saving.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

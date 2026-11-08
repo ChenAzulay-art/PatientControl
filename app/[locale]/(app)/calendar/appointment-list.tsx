@@ -1,11 +1,13 @@
-import { Check, UserX } from "lucide-react";
+import { Check, NotebookPen, UserX } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import type { SessionNoteStatus } from "@/db/schema";
 import type { AppointmentView } from "@/lib/dal/appointments";
 import { formatDayShort, formatTime } from "@/lib/format";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { colorOf } from "@/lib/scheduling/colors";
+import { requestTime } from "@/lib/scheduling/time";
 import { setStatusFromForm } from "./actions";
 import { StatusBadge } from "./appointment-dialog";
 
@@ -21,6 +23,8 @@ export function AppointmentList({
   show,
   returnTo,
   quickActions = false,
+  summaries,
+  summaryT,
 }: {
   locale: Locale;
   t: Dictionary["appointment"];
@@ -29,7 +33,11 @@ export function AppointmentList({
   show: "patient" | "date";
   returnTo: string;
   quickActions?: boolean;
+  /** When given, each ended (or already summarized) session links to its summary. */
+  summaries?: Map<string, SessionNoteStatus>;
+  summaryT?: Dictionary["patients"]["card"];
 }) {
+  const now = requestTime();
   return (
     <ul className="divide-y rounded-md border">
       {appointments.map((appointment) => {
@@ -79,6 +87,30 @@ export function AppointmentList({
               ) : null}
             </span>
             <StatusBadge status={appointment.status} t={t} />
+            {summaries && summaryT
+              ? (() => {
+                  const summary = summaries.get(appointment.id);
+                  const canWrite =
+                    appointment.status !== "cancelled" &&
+                    appointment.status !== "no_show" &&
+                    end.getTime() <= now;
+                  if (!summary && !canWrite) return null;
+                  return (
+                    <Button asChild variant="ghost" size="sm">
+                      <Link
+                        href={`/${locale}/patients/${appointment.patientId}/sessions/${appointment.id}`}
+                      >
+                        <NotebookPen aria-hidden />
+                        {summary === "final"
+                          ? summaryT.openSummary
+                          : summary === "draft"
+                            ? `${summaryT.writeSummary} (${summaryT.draftBadge})`
+                            : summaryT.writeSummary}
+                      </Link>
+                    </Button>
+                  );
+                })()
+              : null}
             {quickActions && open ? (
               <span className="flex gap-1">
                 {(

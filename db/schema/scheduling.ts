@@ -9,6 +9,7 @@ import {
   text,
   time,
   timestamp,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 import { organization, user } from "./auth";
@@ -112,6 +113,8 @@ export const appointments = pgTable(
     ...timestamps,
   },
   (t) => [
+    // Lets session summaries require the same clinic as their appointment.
+    unique("appointments_clinic_id_id_key").on(t.clinicId, t.id),
     index("appointments_clinic_starts_idx").on(t.clinicId, t.startsAt),
     index("appointments_patient_idx").on(t.clinicId, t.patientId, t.startsAt),
     // Both the patient and the treatment type must belong to the same clinic.
