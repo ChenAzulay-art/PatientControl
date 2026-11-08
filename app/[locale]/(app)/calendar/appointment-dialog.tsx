@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarClock, ExternalLink, Search } from "lucide-react";
+import { CalendarClock, ExternalLink, NotebookPen, Search } from "lucide-react";
 import { DateTime } from "luxon";
 import Link from "next/link";
 import {
@@ -275,6 +275,17 @@ function AppointmentDetails({
               >
                 <CalendarClock aria-hidden />
                 {t.reschedule}
+              </Button>
+            ) : null}
+            {appointment.status !== "cancelled" &&
+            appointment.status !== "no_show" ? (
+              <Button asChild size="sm" variant="outline">
+                <Link
+                  href={`/${locale}/patients/${appointment.patientId}/sessions/${appointment.id}`}
+                >
+                  <NotebookPen aria-hidden />
+                  {t.writeSummary}
+                </Link>
               </Button>
             ) : null}
             <Button asChild size="sm" variant="ghost">

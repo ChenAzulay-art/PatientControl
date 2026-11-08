@@ -40,6 +40,7 @@ Every account must turn on two-step verification with an authenticator app befor
 - `app/[locale]/` – pages; `(auth)` for sign-up, login and onboarding, `(app)` for the signed-in clinic
 - `lib/dal/` – the only way pages and actions reach clinic data; checks the session, two-step verification and clinic membership, scopes every query to the clinic and records patient views and changes in the audit log
 - `lib/scheduling/` – time-zone conversions (clinic wall-clock time ↔ stored instants, including daylight-saving changes) and calendar colors; overlapping appointments are blocked by a database constraint in `drizzle/0002_scheduling.sql`
+- `lib/dal/session-notes.ts` – treatment summaries: drafts save automatically, saving makes them final, and every later change is kept as a version
 - `lib/crypto.ts` – encryption of the ID number, medical background and important notes
 - `e2e/` – Playwright end-to-end tests
 - `lib/auth.ts` – Better Auth configuration (email verification, two-step verification, rate limits, clinics as organizations)

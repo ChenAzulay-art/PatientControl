@@ -95,7 +95,11 @@ export const auth = betterAuth({
     },
   },
   rateLimit: {
-    enabled: true,
+    // Always on in production. End-to-end tests sign up several accounts a
+    // minute, so their test server turns it off with AUTH_RATE_LIMIT=off.
+    enabled:
+      process.env.NODE_ENV === "production" ||
+      process.env.AUTH_RATE_LIMIT !== "off",
     // Stored in Postgres so limits hold across serverless instances.
     storage: "database",
     window: 60,

@@ -74,3 +74,11 @@ export function minutesOfDay(time: string): number {
 export function shortTime(time: string): string {
   return time.slice(0, 5);
 }
+
+/**
+ * The current time, for Server Components deciding e.g. whether a session
+ * has ended. They render once per request, so reading the clock is fine.
+ */
+export function requestTime(): number {
+  return Date.now();
+}
