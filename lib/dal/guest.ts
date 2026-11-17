@@ -12,7 +12,7 @@ import {
 } from "@/db/schema";
 import { demoContent, demoNationalId, demoPhone } from "@/lib/guest/demo-data";
 import type { Locale } from "@/lib/i18n/config";
-import { addDays, todayIn } from "@/lib/scheduling/time";
+import { addDays, todayIn, zonedToUtc } from "@/lib/scheduling/time";
 import { createAppointment, setAppointmentStatus } from "./appointments";
 import { setWorkingHours } from "./availability";
 import type { ClinicContext } from "./context";
@@ -127,13 +127,15 @@ async function seedDemoClinic(ctx: ClinicContext, locale: Locale, now: Date) {
       (t) => t.key === appointment.treatment,
     );
     if (!patientId || !treatment) continue;
-    const past = appointment.dayOffset < 0;
+    const date = addDays(today, appointment.dayOffset);
+    // Earlier days, and today's appointments that have already started.
+    const past = zonedToUtc(date, appointment.time, ctx.clinic.timezone) < now;
     const result = await createAppointment(
       ctx,
       {
         patientId,
         treatmentTypeId: treatmentIds.get(treatment.key) ?? null,
-        date: addDays(today, appointment.dayOffset),
+        date,
         time: appointment.time,
         durationMinutes: treatment.durationMinutes,
       },
