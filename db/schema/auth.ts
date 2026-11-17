@@ -27,6 +27,8 @@ export const user = pgTable("user", {
     .notNull(),
   twoFactorEnabled: boolean("two_factor_enabled").default(false),
   locale: text("locale").default("he"),
+  /** A guest from "Try it as a guest" (Better Auth's anonymous plugin). */
+  isAnonymous: boolean("is_anonymous").default(false),
 });
 
 export const session = pgTable(

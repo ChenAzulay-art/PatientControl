@@ -2,6 +2,7 @@ import "server-only";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { anonymous } from "better-auth/plugins/anonymous";
 import { organization } from "better-auth/plugins/organization";
 import { twoFactor } from "better-auth/plugins/two-factor";
 import { db } from "@/db";
@@ -128,6 +129,18 @@ export const auth = betterAuth({
     twoFactor({ issuer: APP_NAME }),
     // A clinic is an organization; its owner is the practitioner. Staff come later.
     organization({ allowUserToCreateOrganization: true, organizationLimit: 1 }),
+    // "Try it as a guest": a throwaway user with its own demo clinic
+    // (lib/dal/guest.ts). No email or password, so no emails are ever sent.
+    anonymous({
+      emailDomainName: "guest.invalid",
+      generateName: () => "Guest",
+      // A guest who signs in with a real account leaves their demo clinic
+      // behind; delete it with them.
+      onLinkAccount: async ({ anonymousUser }) => {
+        const { deleteGuestData } = await import("@/lib/dal/guest");
+        await deleteGuestData(anonymousUser.user.id);
+      },
+    }),
     // Must stay last: lets Server Actions set auth cookies.
     nextCookies(),
   ],

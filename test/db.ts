@@ -48,6 +48,7 @@ export async function makeClinic(
       name: `Practitioner ${suffix}`,
       email: `${suffix}@example.test`,
       twoFactorEnabled: true,
+      isGuest: false,
     },
     clinic: {
       id: `clinic-${suffix}`,
@@ -55,6 +56,7 @@ export async function makeClinic(
       slug: `clinic-${suffix}`,
       role: "owner",
       timezone,
+      isDemo: false,
     },
   };
 }

@@ -1,5 +1,8 @@
 import { CalendarDays, ClipboardList, Users } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
+import { GuestButton } from "@/components/guest/guest-button";
+import { GuestNotice } from "@/components/guest/guest-notice";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
@@ -35,6 +38,11 @@ export default async function HomePage() {
       </SiteHeader>
       <main className="mx-auto w-full max-w-5xl px-4 py-16 sm:py-24">
         <section className="max-w-2xl">
+          <Suspense fallback={null}>
+            <div className="mb-6 empty:hidden">
+              <GuestNotice t={t.guest} />
+            </div>
+          </Suspense>
           <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             {t.home.title}
           </h1>
@@ -48,6 +56,9 @@ export default async function HomePage() {
             <Button asChild size="lg" variant="outline">
               <Link href={`/${locale}/login`}>{t.home.logIn}</Link>
             </Button>
+          </div>
+          <div className="mt-6">
+            <GuestButton locale={locale} t={t.guest} size="lg" />
           </div>
         </section>
         <section className="mt-16 grid gap-6 sm:grid-cols-3">

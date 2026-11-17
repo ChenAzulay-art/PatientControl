@@ -103,6 +103,11 @@ export function PrivacyHe() {
           הקליניקה לשמור רשומות רפואיות לאורך שנים; האחריות לייצא ולשמור אותן
           לפני מחיקה היא של הקליניקה.
         </p>
+        <p>
+          כניסה כאורח יוצרת קליניקת הדגמה זמנית, שנמחקת עם כל מה שהוזן בה ביציאה
+          ממצב אורח, ובכל מקרה תוך כמה שעות. אין להזין בה פרטים של מטופלים
+          אמיתיים.
+        </p>
       </Section>
 
       <Section title="עוגיות">
@@ -232,6 +237,11 @@ export function PrivacyEn() {
           overwritten within {LEGAL.backupRetentionDays} days. The law may
           require a clinic to keep medical records for years; exporting and
           keeping them before deleting is the clinic’s responsibility.
+        </p>
+        <p>
+          “Try it as a guest” creates a temporary demo clinic. It is deleted,
+          with everything entered in it, when the guest exits guest mode, and in
+          any case within a few hours. Don’t enter real patients’ details there.
         </p>
       </Section>
 

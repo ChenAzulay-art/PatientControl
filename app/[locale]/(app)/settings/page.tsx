@@ -233,16 +233,24 @@ async function SettingsDetails() {
         </CardHeader>
         <CardContent>
           <dl className="divide-y">
-            <Row label={t.auth.name}>{user.name}</Row>
-            <Row label={t.settings.email}>
-              <span dir="ltr">{user.email}</span>
-            </Row>
-            <Row label={t.settings.twoFactor}>
-              <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-primary" aria-hidden />
-                {t.settings.twoFactorOn}
-              </span>
-            </Row>
+            {user.isGuest ? (
+              <p className="py-2 text-sm text-muted-foreground">
+                {t.guest.banner}
+              </p>
+            ) : (
+              <>
+                <Row label={t.auth.name}>{user.name}</Row>
+                <Row label={t.settings.email}>
+                  <span dir="ltr">{user.email}</span>
+                </Row>
+                <Row label={t.settings.twoFactor}>
+                  <span className="inline-flex items-center gap-1.5">
+                    <ShieldCheck className="size-4 text-primary" aria-hidden />
+                    {t.settings.twoFactorOn}
+                  </span>
+                </Row>
+              </>
+            )}
           </dl>
         </CardContent>
       </Card>
@@ -257,24 +265,27 @@ async function SettingsDetails() {
         </CardContent>
       </Card>
 
-      <Card id="delete-account" className="scroll-mt-4 border-destructive/40">
-        <CardHeader>
-          <CardTitle>{t.deleteAccount.title}</CardTitle>
-          <CardDescription>{t.deleteAccount.description}</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <ul className="list-disc space-y-1 ps-5 text-sm text-muted-foreground">
-            <li>{t.deleteAccount.warningRecords}</li>
-            <li>{t.deleteAccount.warningRetention}</li>
-            <li>{t.deleteAccount.warningBackups}</li>
-          </ul>
-          <DeleteAccountForm
-            locale={locale}
-            t={t.deleteAccount}
-            slug={clinic.slug}
-          />
-        </CardContent>
-      </Card>
+      {/* Guests delete everything by signing out. */}
+      {user.isGuest ? null : (
+        <Card id="delete-account" className="scroll-mt-4 border-destructive/40">
+          <CardHeader>
+            <CardTitle>{t.deleteAccount.title}</CardTitle>
+            <CardDescription>{t.deleteAccount.description}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <ul className="list-disc space-y-1 ps-5 text-sm text-muted-foreground">
+              <li>{t.deleteAccount.warningRecords}</li>
+              <li>{t.deleteAccount.warningRetention}</li>
+              <li>{t.deleteAccount.warningBackups}</li>
+            </ul>
+            <DeleteAccountForm
+              locale={locale}
+              t={t.deleteAccount}
+              slug={clinic.slug}
+            />
+          </CardContent>
+        </Card>
+      )}
     </>
   );
 }

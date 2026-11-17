@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 import type { Locale } from "@/lib/i18n/config";
 import { getDictionaryFor } from "@/lib/i18n/dictionaries";
 import { format } from "@/lib/i18n/format";
+import { isDemoClinic } from "./demo-guard";
 import { sendEmail } from "./index";
 
 /** "Tuesday, 1 December 2026, 10:00" in the clinic's time zone. */
@@ -24,9 +25,11 @@ export type BookingEmailKind = "requested" | "confirmed" | "cancelled";
 
 /**
  * Emails to a patient about an online booking. They name the clinic,
- * treatment and time, and nothing from the patient's records.
+ * treatment and time, and nothing from the patient's records. Guest
+ * (demo) clinics send nothing.
  */
 export async function sendBookingEmail({
+  clinicId,
   kind,
   to,
   locale,
@@ -38,6 +41,8 @@ export async function sendBookingEmail({
   cancelUrl = "",
   bookUrl = "",
 }: {
+  /** The sending clinic, so guest clinics can be held back. */
+  clinicId: string;
   kind: BookingEmailKind;
   to: string;
   locale: Locale;
@@ -49,6 +54,7 @@ export async function sendBookingEmail({
   cancelUrl?: string;
   bookUrl?: string;
 }): Promise<void> {
+  if (await isDemoClinic(clinicId)) return;
   const t = await getDictionaryFor(locale);
   const when = emailDateTime(startsAt, timezone, locale);
   const values = {

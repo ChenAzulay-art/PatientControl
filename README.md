@@ -4,6 +4,10 @@ Clinic management for independent practitioners (reflexologists, physiotherapist
 
 Built with Next.js 16 (App Router, Cache Components), Better Auth, Drizzle ORM on Postgres (Neon in production), Tailwind CSS and shadcn/ui.
 
+## Live demo
+
+**[patientcontrol.vercel.app](https://patientcontrol.vercel.app)** – click **Try it as a guest** (no sign-up). You get a private demo clinic with sample patients, appointments and treatment summaries, and can use every feature. Everything is deleted when you exit guest mode, or automatically after a few hours.
+
 ## Local development
 
 ```bash
@@ -57,6 +61,7 @@ Reminder emails are sent by a [Vercel schedule](https://vercel.com/docs/schedule
 - `lib/dal/export.ts` and `app/api/export/` – downloading a clinic's or a patient's data as JSON; `lib/dal/account.ts` – deleting the clinic and the account (both ask for the password again, `lib/dal/reauth.ts`)
 - `lib/security-headers.ts` – the Content Security Policy and other headers, applied in `next.config.ts`
 - `app/[locale]/(legal)/` and `lib/legal.ts` – privacy policy and terms of use
+- `lib/dal/guest.ts`, `lib/guest/demo-data.ts` and `app/[locale]/(auth)/guest/` – "Try it as a guest": a throwaway user (Better Auth's anonymous plugin) with a seeded demo clinic, deleted on sign-out and by the hourly `/api/cron/cleanup-guests` job; demo clinics never send emails and have size limits (`lib/dal/guest-limits.ts`)
 - `lib/crypto.ts` – encryption of the ID number, medical background and important notes
 - `e2e/` – Playwright end-to-end tests
 - `lib/auth.ts` – Better Auth configuration (email verification, two-step verification, rate limits, clinics as organizations)

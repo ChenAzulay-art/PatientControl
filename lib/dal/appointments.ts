@@ -11,6 +11,7 @@ import { recordAudit } from "@/lib/audit";
 import { zonedToUtc } from "@/lib/scheduling/time";
 import type { AppointmentInput } from "@/lib/validation/scheduling";
 import { type ClinicContext, isUuid } from "./context";
+import { checkGuestLimit } from "./guest-limits";
 import { ownTreatmentTypeIds } from "./treatment-types";
 
 /** What the calendar, dashboard and patient card show for an appointment. */
@@ -187,6 +188,7 @@ export async function createAppointment(
     now = new Date(),
   }: { pastSession?: boolean; now?: Date } = {},
 ): Promise<Result<{ id: string }>> {
+  await checkGuestLimit(ctx, "appointments");
   if (!(await patientInClinic(ctx, input.patientId))) {
     return { ok: false, error: "patientNotFound" };
   }
