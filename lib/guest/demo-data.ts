@@ -155,6 +155,12 @@ const he: DemoContent = {
     },
     // A past session still waiting for its summary.
     { patient: "yossi", treatment: "massage", dayOffset: -2, time: "15:00" },
+    // Today, so the calendar and the dashboard never open empty. Whichever
+    // have already started when the guest arrives count as done.
+    { patient: "ronit", treatment: "reflexology", dayOffset: 0, time: "09:00" },
+    { patient: "uri", treatment: "reflexology", dayOffset: 0, time: "11:30" },
+    { patient: "daniel", treatment: "massage", dayOffset: 0, time: "14:00" },
+    { patient: "michal", treatment: "consult", dayOffset: 0, time: "16:30" },
     { patient: "noa", treatment: "reflexology", dayOffset: 1, time: "10:00" },
     { patient: "ronit", treatment: "reflexology", dayOffset: 1, time: "13:00" },
     { patient: "uri", treatment: "reflexology", dayOffset: 2, time: "11:00" },

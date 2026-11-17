@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { randomBytes } from "node:crypto";
-import { and, count, eq } from "drizzle-orm";
+import { and, count, eq, gte, lt } from "drizzle-orm";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import * as schema from "@/db/schema";
 import { isValidIsraeliId } from "@/lib/validation/israeli-id";
@@ -77,7 +77,7 @@ describe("createGuestClinic", () => {
 
   it("fills it with patients, appointments, summaries and a pending request", async () => {
     expect(await rows(schema.patients, ctx.clinic.id)).toBe(6);
-    expect(await rows(schema.appointments, ctx.clinic.id)).toBe(10);
+    expect(await rows(schema.appointments, ctx.clinic.id)).toBe(14);
     expect(await rows(schema.sessionNotes, ctx.clinic.id)).toBe(3);
     // One summary was saved twice, so it has two versions.
     expect(await rows(schema.sessionNoteVersions, ctx.clinic.id)).toBe(4);
@@ -98,6 +98,50 @@ describe("createGuestClinic", () => {
     const noa = data!.patients.find((p) => p.fullName === "נועה לוי")!;
     expect(noa.importantNotes).toContain("לבנדר");
     expect(isValidIsraeliId(noa.nationalId!)).toBe(true);
+  });
+
+  it("always has appointments today, done or upcoming by the time of day", async () => {
+    // A guest arriving at 15:00 (Israel) on 1 Dec 2026.
+    const afternoon = new Date("2026-12-01T13:00:00Z");
+    const later = await createGuestClinic(
+      await newGuest(afternoon),
+      "en",
+      afternoon,
+    );
+    const today = await db
+      .select({
+        startsAt: schema.appointments.startsAt,
+        status: schema.appointments.status,
+      })
+      .from(schema.appointments)
+      .where(
+        and(
+          eq(schema.appointments.clinicId, later.clinic.id),
+          gte(schema.appointments.startsAt, new Date("2026-11-30T22:00:00Z")),
+          lt(schema.appointments.startsAt, new Date("2026-12-01T22:00:00Z")),
+        ),
+      )
+      .orderBy(schema.appointments.startsAt);
+    expect(today.map((a) => a.status)).toEqual([
+      "completed", // 09:00
+      "completed", // 11:30
+      "completed", // 14:00, already started
+      "scheduled", // 16:30
+    ]);
+
+    // Arriving at 08:00, all of today's are still ahead.
+    const morning = await db
+      .select({ status: schema.appointments.status })
+      .from(schema.appointments)
+      .where(
+        and(
+          eq(schema.appointments.clinicId, ctx.clinic.id),
+          gte(schema.appointments.startsAt, new Date("2026-11-30T22:00:00Z")),
+          lt(schema.appointments.startsAt, new Date("2026-12-01T22:00:00Z")),
+        ),
+      );
+    expect(morning).toHaveLength(4);
+    expect(morning.every((a) => a.status === "scheduled")).toBe(true);
   });
 
   it("keeps each guest's clinic separate", async () => {
