@@ -14,7 +14,7 @@ const sendEmail = vi.fn(async () => ({}));
 vi.mock("@/lib/email/index", () => ({ sendEmail }));
 
 const { db } = await import("@/db");
-const { cleanupGuests, createGuestClinic, deleteGuestData } =
+const { cleanupGuests, createGuestClinic, deleteGuestData, restartGuest } =
   await import("./guest");
 const { GUEST_LIMITS, GuestLimitError } = await import("./guest-limits");
 const { createPatient } = await import("./patients");
@@ -235,6 +235,31 @@ describe("deleteGuestData", () => {
         .from(schema.organization)
         .where(eq(schema.organization.id, real.clinic.id)),
     ).toHaveLength(1);
+  });
+});
+
+describe("restartGuest", () => {
+  it("replaces the guest's clinic with a fresh one and restarts their clock", async () => {
+    const earlier = new Date(NOW.getTime() - 90 * 60_000);
+    const guestId = await newGuest(earlier);
+    const first = await createGuestClinic(guestId, "en", earlier);
+
+    const second = await restartGuest(guestId, "en", NOW);
+    expect(second!.clinic.id).not.toBe(first.clinic.id);
+    expect(await rows(schema.patients, first.clinic.id)).toBe(0);
+    expect(await rows(schema.patients, second!.clinic.id)).toBe(6);
+
+    // Same guest, same session; only the start time moves.
+    const [guest] = await db
+      .select()
+      .from(schema.user)
+      .where(eq(schema.user.id, guestId));
+    expect(guest.createdAt).toEqual(NOW);
+  });
+
+  it("does nothing for a real practitioner", async () => {
+    const real = await makeClinic(db, "restart-real");
+    expect(await restartGuest(real.user.id, "en", NOW)).toBeNull();
   });
 });
 

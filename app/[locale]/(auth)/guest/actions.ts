@@ -4,7 +4,11 @@ import { checkBotId } from "botid/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { createGuestClinic, deleteGuestData } from "@/lib/dal/guest";
+import {
+  createGuestClinic,
+  deleteGuestData,
+  restartGuest,
+} from "@/lib/dal/guest";
 import { getSession } from "@/lib/dal/session";
 import { defaultLocale, isLocale } from "@/lib/i18n/config";
 import { consumeRateLimit } from "@/lib/rate-limit";
@@ -57,10 +61,11 @@ export async function startGuestSession(
     return { error: "full" };
   }
 
-  // A guest who starts again gets a fresh clinic; the old one is deleted.
+  // A guest who starts again keeps their session and gets a fresh clinic;
+  // the old one is deleted.
   if (existing?.user.isAnonymous) {
-    await auth.api.signOut({ headers: await headers() });
-    await deleteGuestData(existing.user.id);
+    await restartGuest(existing.user.id, locale);
+    redirect(`/${locale}/dashboard`);
   }
 
   const { user } = await auth.api.signInAnonymous({ headers: await headers() });
