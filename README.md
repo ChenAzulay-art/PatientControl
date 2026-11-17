@@ -24,6 +24,8 @@ Every account must turn on two-step verification with an authenticator app befor
 3. In the project's environment variables, set `BETTER_AUTH_SECRET`, `DATA_ENCRYPTION_KEY`, `CRON_SECRET`, `BETTER_AUTH_URL` (the site's URL) and `EMAIL_FROM` (a sender on your verified Resend domain). Keep a safe copy of `DATA_ENCRYPTION_KEY`: without it, encrypted patient fields can't be read.
 4. Locally: `vercel env pull .env.local`, then `npm run db:migrate` and `npm run dev`.
 
+Production deployments apply the database migrations themselves before building (`scripts/vercel-build.mjs`, which Vercel runs as `npm run vercel-build`). Preview deployments skip them, because they share the production database.
+
 Reminder emails are sent by a [Vercel schedule](https://vercel.com/docs/schedules) declared in `vercel.json`, which calls `/api/cron/reminders` every 15 minutes with `CRON_SECRET`. Locally nothing runs on a timer: run `npm run reminders:run` while the app is running to send the reminders that are due.
 
 ## Before launch
