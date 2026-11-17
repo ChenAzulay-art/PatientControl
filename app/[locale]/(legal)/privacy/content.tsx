@@ -76,8 +76,8 @@ export function PrivacyHe() {
               <strong>Neon</strong> – מסד הנתונים, ב{LEGAL.hostingRegion.he}.
             </>,
             <>
-              <strong>Resend</strong> – שליחת מיילים. המיילים כוללים שם, שם
-              הקליניקה ומועד התור, ולעולם לא מידע רפואי.
+              <strong>Resend</strong> – שליחת מיילים, בארצות הברית. המיילים
+              כוללים שם, שם הקליניקה ומועד התור, ולעולם לא מידע רפואי.
             </>,
           ]}
         />
@@ -204,9 +204,9 @@ export function PrivacyEn() {
               <strong>Neon</strong> – the database, in {LEGAL.hostingRegion.en}.
             </>,
             <>
-              <strong>Resend</strong> – sending emails. Emails contain a name,
-              the clinic’s name and the appointment time, never medical
-              information.
+              <strong>Resend</strong> – sending emails, in the United States.
+              Emails contain a name, the clinic’s name and the appointment time,
+              never medical information.
             </>,
           ]}
         />
