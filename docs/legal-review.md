@@ -17,9 +17,10 @@ In `lib/legal.ts`:
   running the service.
 - `contactEmail` – a real address that someone reads.
 - `backupRetentionDays` – the actual Neon restore window (see `docs/backups.md`).
-- `hostingRegion` – confirm the Vercel function region and the Neon region
-  really are Frankfurt (Vercel project → Settings → Functions; Neon project
-  settings).
+- `hostingRegion` – currently the United States (Washington, D.C.): the
+  Neon database was created in US East (iad1) and the Vercel functions run
+  there too. If this ever changes, update it (Vercel project → Settings →
+  Functions; Neon database settings in Vercel → Storage).
 
 ## Questions for the lawyer
 
@@ -62,11 +63,16 @@ In `lib/legal.ts`:
 
 ### Transfers abroad and sub-processors
 
-10. Data is stored in the EU (Frankfurt). Emails are sent through Resend,
-    which may process them in the United States; emails contain the patient's
-    name, the clinic and the appointment time but no medical details. Do the
-    Privacy Protection (Transfer of Data to Databases Abroad) Regulations
-    allow this, and what has to be in place?
+10. All data – including ID numbers, medical background and treatment
+    summaries (encrypted in the app before storage) – is stored in the
+    **United States** (Neon database and Vercel servers in Washington, D.C.).
+    Emails go through Resend, also in the United States, and contain the
+    patient's name, the clinic and the appointment time but no medical
+    details. Do the Privacy Protection (Transfer of Data to Databases
+    Abroad) Regulations allow storing Israeli patients' health data in the
+    US, and what has to be in place (contracts with Vercel, Neon and Resend,
+    consent, anything else)? Would moving to an EU region (possible only
+    with a new database) make this materially simpler?
 11. Should the policy list sub-processors by name (it does: Vercel, Neon,
     Resend) and promise notice before adding new ones?
 
