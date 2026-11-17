@@ -44,6 +44,11 @@ export const clinicSettings = pgTable("clinic_settings", {
   remindersEnabled: boolean("reminders_enabled").notNull().default(true),
   /** How long before an appointment the reminder is sent. */
   reminderLeadMinutes: integer("reminder_lead_minutes").notNull().default(1440),
+  /**
+   * A temporary guest clinic ("Try it as a guest"). It never sends emails,
+   * has size limits, and is deleted when the guest signs out or within hours.
+   */
+  isDemo: boolean("is_demo").notNull().default(false),
   ...timestamps,
 });
 

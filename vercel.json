@@ -4,6 +4,10 @@
     "appointment-reminders": {
       "schedule": "*/15 * * * *",
       "path": "/api/cron/reminders"
+    },
+    "guest-cleanup": {
+      "schedule": "0 * * * *",
+      "path": "/api/cron/cleanup-guests"
     }
   }
 }

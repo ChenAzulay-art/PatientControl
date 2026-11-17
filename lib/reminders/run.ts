@@ -62,6 +62,8 @@ function dueNow(now: Date) {
   const lead = sql`make_interval(mins => ${clinicSettings.reminderLeadMinutes})`;
   return and(
     eq(clinicSettings.remindersEnabled, true),
+    // Guest (demo) clinics never email anyone.
+    eq(clinicSettings.isDemo, false),
     inArray(appointments.status, ["scheduled", "confirmed"]),
     // Online requests still waiting for the practitioner's approval.
     sql`not (${appointments.source} = 'online' and ${appointments.status} = 'scheduled')`,

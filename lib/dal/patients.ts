@@ -20,6 +20,7 @@ import { isLocale } from "@/lib/i18n/config";
 import type { PatientInput } from "@/lib/validation/patient";
 import { phoneSearchDigits } from "@/lib/validation/phone";
 import { type ClinicContext, isUuid } from "./context";
+import { checkGuestLimit } from "./guest-limits";
 import { ownTreatmentTypeIds } from "./treatment-types";
 
 export type PatientListItem = {
@@ -216,6 +217,7 @@ export async function createPatient(
   ctx: ClinicContext,
   input: PatientInput,
 ): Promise<string> {
+  await checkGuestLimit(ctx, "patients");
   const typeIds = await ownTreatmentTypeIds(ctx, input.treatmentTypeIds);
   const id = await db.transaction(async (tx) => {
     const [row] = await tx

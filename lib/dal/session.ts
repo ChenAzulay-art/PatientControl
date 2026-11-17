@@ -14,6 +14,8 @@ export type CurrentUser = {
   name: string;
   email: string;
   twoFactorEnabled: boolean;
+  /** A visitor from "Try it as a guest", with a temporary demo clinic. */
+  isGuest: boolean;
 };
 
 export type CurrentClinic = {
@@ -22,35 +24,56 @@ export type CurrentClinic = {
   slug: string;
   role: string;
   timezone: string;
+  /** A temporary guest clinic: no emails, size limits, deleted within hours. */
+  isDemo: boolean;
 };
+
+/** How long a guest can use the app before they need to start again. */
+export const GUEST_SESSION_MINUTES = 120;
 
 /** Reads and validates the session once per request. */
 export const getSession = cache(async () =>
   auth.api.getSession({ headers: await headers() }),
 );
 
-function toCurrentUser(
-  user: NonNullable<Awaited<ReturnType<typeof getSession>>>["user"],
-) {
+type SessionUser = NonNullable<Awaited<ReturnType<typeof getSession>>>["user"];
+
+function toCurrentUser(user: SessionUser) {
   return {
     id: user.id,
     name: user.name,
     email: user.email,
     twoFactorEnabled: Boolean(user.twoFactorEnabled),
+    isGuest: Boolean(user.isAnonymous),
   } satisfies CurrentUser;
+}
+
+/** A guest whose time is up; the cleanup job deletes their clinic soon after. */
+export function guestExpired(user: SessionUser, now = new Date()): boolean {
+  return (
+    Boolean(user.isAnonymous) &&
+    now.getTime() - new Date(user.createdAt).getTime() >
+      GUEST_SESSION_MINUTES * 60_000
+  );
 }
 
 /** Any signed-in user, even before two-step verification is set up. */
 export async function requireUser(locale: Locale): Promise<CurrentUser> {
   const session = await getSession();
   if (!session) redirect(`/${locale}/login`);
+  if (guestExpired(session.user)) redirect(`/${locale}?guest=expired`);
   return toCurrentUser(session.user);
 }
 
-/** A signed-in user who has two-step verification turned on. */
+/**
+ * A signed-in user who has two-step verification turned on. Guests skip it:
+ * they have no password to protect, and can only reach their own demo clinic.
+ */
 export async function requireSecureUser(locale: Locale): Promise<CurrentUser> {
   const user = await requireUser(locale);
-  if (!user.twoFactorEnabled) redirect(`/${locale}/setup-2fa`);
+  if (!user.twoFactorEnabled && !user.isGuest) {
+    redirect(`/${locale}/setup-2fa`);
+  }
   return user;
 }
 
@@ -63,6 +86,7 @@ const findClinicForUser = cache(
         slug: organization.slug,
         role: member.role,
         timezone: clinicSettings.timezone,
+        isDemo: clinicSettings.isDemo,
       })
       .from(member)
       .innerJoin(organization, eq(member.organizationId, organization.id))
@@ -83,6 +107,7 @@ const findClinicForUser = cache(
     return {
       ...row,
       timezone: row.timezone ?? "Asia/Jerusalem",
+      isDemo: Boolean(row.isDemo),
     } satisfies CurrentClinic;
   },
 );
@@ -109,9 +134,9 @@ export async function findClinicContext(): Promise<{
   clinic: CurrentClinic;
 } | null> {
   const session = await getSession();
-  if (!session) return null;
+  if (!session || guestExpired(session.user)) return null;
   const user = toCurrentUser(session.user);
-  if (!user.twoFactorEnabled) return null;
+  if (!user.twoFactorEnabled && !user.isGuest) return null;
   const active = session.session.activeOrganizationId;
   const clinic =
     (await findClinicForUser(user.id, active)) ??

@@ -66,6 +66,7 @@ export async function notifyOnlineBookingStatus(
     const locale = isLocale(row.locale) ? row.locale : "he";
     const origin = await siteUrl();
     const common = {
+      clinicId: ctx.clinic.id,
       to: row.email,
       locale,
       patientName: row.patientName,

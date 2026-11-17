@@ -558,5 +558,21 @@
       "body": "Your clinic and all its records were deleted, and you were signed out. We sent a confirmation to your email.",
       "home": "Back to the home page"
     }
+  },
+  "guest": {
+    "try": "Try it as a guest",
+    "tryHint": "No sign-up needed. You get a demo clinic to explore; everything is deleted when you sign out.",
+    "starting": "Preparing your demo clinic…",
+    "banner": "Guest mode: please don't enter real patient details. Everything is deleted when you sign out.",
+    "exit": "Exit guest mode",
+    "exitConfirm": "Exit guest mode? Your demo clinic and everything you added will be deleted.",
+    "ended": "Your guest session ended and its data was deleted.",
+    "expired": "Your guest session expired after 2 hours and its data is being deleted. You can start a new one.",
+    "errors": {
+      "bot": "We couldn't verify this request. Please try again.",
+      "tooMany": "Too many guest sessions from this network. Please try again in an hour.",
+      "full": "Guest mode is at today's limit. Please try again tomorrow."
+    },
+    "or": "or"
   }
 }

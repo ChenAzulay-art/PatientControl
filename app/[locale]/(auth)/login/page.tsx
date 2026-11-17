@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AuthCard } from "@/components/auth-card";
+import { GuestButton } from "@/components/guest/guest-button";
 import { getDictionary, getLocale } from "@/lib/i18n/dictionaries";
 import { LoginForm } from "./login-form";
 
@@ -29,6 +30,9 @@ export default async function LoginPage() {
       }
     >
       <LoginForm locale={locale} t={t.auth} />
+      <div className="mt-6 flex flex-col gap-3 border-t pt-6">
+        <GuestButton locale={locale} t={t.guest} />
+      </div>
     </AuthCard>
   );
 }

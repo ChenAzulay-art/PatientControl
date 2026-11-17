@@ -171,6 +171,18 @@ describe("runReminders", () => {
     expect(await run(minutesLater(21 * 60))).toMatchObject({ sent: 1 });
   });
 
+  it("never reminds patients of guest (demo) clinics", async () => {
+    const ctx = await clinic("demo");
+    await db
+      .update(schema.clinicSettings)
+      .set({ isDemo: true })
+      .where(eq(schema.clinicSettings.clinicId, ctx.clinic.id));
+    await book(ctx, await patient(ctx), "06:00");
+
+    expect(await run()).toMatchObject({ sent: 0 });
+    expect(send).not.toHaveBeenCalled();
+  });
+
   it("includes a working cancel link for online bookings", async () => {
     const ctx = await clinic("online");
     const id = await patient(ctx);

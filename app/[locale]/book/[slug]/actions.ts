@@ -109,6 +109,7 @@ export async function bookAction(input: {
   const origin = await siteUrl();
   try {
     await sendBookingEmail({
+      clinicId: clinic.id,
       kind: result.status === "confirmed" ? "confirmed" : "requested",
       to: parsed.data.email,
       locale,
