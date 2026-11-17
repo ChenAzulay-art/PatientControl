@@ -53,6 +53,22 @@ export async function sendEmail(
     subject: message.subject,
     text: message.text,
   });
-  if (error) throw new Error(`Email failed to send: ${error.name}`);
+  if (error) {
+    throw new Error(
+      `Email failed to send: ${error.name}: ${redactAddresses(error.message ?? "")}`,
+    );
+  }
   return { id: data?.id };
+}
+
+/**
+ * The provider's error message explains what it rejected (for example the
+ * sender address), so it goes into the log, with any email addresses in it
+ * replaced, because recipients can be patients.
+ */
+export function redactAddresses(text: string): string {
+  return text.replace(
+    /[^\s<>()"',;:@]+@[^\s<>()"',;:@]*[A-Za-z0-9]/g,
+    "[address]",
+  );
 }
