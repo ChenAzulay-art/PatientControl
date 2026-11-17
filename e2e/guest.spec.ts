@@ -30,6 +30,22 @@ test("a guest explores a demo clinic, and exiting deletes everything", async ({
     page.getByRole("heading", { name: "Interviewer Test" }),
   ).toBeVisible();
 
+  // Clicking "Try it as a guest" again while a guest starts over with a
+  // fresh demo clinic, and stays signed in.
+  await page.goto("/en");
+  await page.getByRole("button", { name: g.try }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await page.goto("/en/patients");
+  await expect(page.getByText("Noa Levi")).toBeVisible();
+  await expect(page.getByText("Interviewer Test")).toHaveCount(0);
+  await page.goto("/en/patients/new");
+  await page.getByLabel(form.fullName).fill("Interviewer Test");
+  await page.getByLabel(form.phone).fill("052-555-0101");
+  await page.getByRole("button", { name: form.save }).click();
+  await expect(
+    page.getByRole("heading", { name: "Interviewer Test" }),
+  ).toBeVisible();
+
   // Settings: no account deletion for guests (exiting does that).
   await page.goto("/en/settings");
   await expect(page.locator("#delete-account")).toHaveCount(0);

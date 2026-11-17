@@ -161,19 +161,21 @@ async function seedDemoClinic(ctx: ClinicContext, locale: Locale, now: Date) {
   }
 }
 
-/**
- * Deletes a guest: their demo clinic with everything in it, their audit
- * entries, and the guest user. Does nothing to real (non-guest) users or
- * clinics that aren't demo clinics.
- */
-export async function deleteGuestData(userId: string): Promise<boolean> {
+async function isGuest(userId: string): Promise<boolean> {
   const [guest] = await db
     .select({ isAnonymous: user.isAnonymous })
     .from(user)
     .where(eq(user.id, userId))
     .limit(1);
-  if (!guest?.isAnonymous) return false;
+  return Boolean(guest?.isAnonymous);
+}
 
+/**
+ * Deletes a guest's demo clinics with everything in them, and the guest's
+ * audit entries. With `andUser`, deletes the guest user (and so their
+ * sessions) too. Never touches real users or clinics that aren't demos.
+ */
+async function deleteGuestClinics(userId: string, andUser: boolean) {
   const clinics = await db
     .select({ id: member.organizationId })
     .from(member)
@@ -199,12 +201,42 @@ export async function deleteGuestData(userId: string): Promise<boolean> {
       // Every clinic table cascades from the organization.
       await tx.delete(organization).where(inArray(organization.id, clinicIds));
     }
-    // Sessions cascade from the user.
-    await tx
-      .delete(user)
-      .where(and(eq(user.id, userId), eq(user.isAnonymous, true)));
+    if (andUser) {
+      // Sessions cascade from the user.
+      await tx
+        .delete(user)
+        .where(and(eq(user.id, userId), eq(user.isAnonymous, true)));
+    }
   });
+}
+
+/**
+ * Deletes a guest: their demo clinic with everything in it, their audit
+ * entries, and the guest user. Does nothing to real (non-guest) users.
+ */
+export async function deleteGuestData(userId: string): Promise<boolean> {
+  if (!(await isGuest(userId))) return false;
+  await deleteGuestClinics(userId, true);
   return true;
+}
+
+/**
+ * Starts a guest over in the same session: their demo clinic is replaced
+ * with a fresh one and their 2-hour clock restarts. (Signing out and in
+ * again within one request would leave the browser without a session.)
+ */
+export async function restartGuest(
+  userId: string,
+  locale: Locale,
+  now: Date = new Date(),
+): Promise<ClinicContext | null> {
+  if (!(await isGuest(userId))) return null;
+  await deleteGuestClinics(userId, false);
+  await db
+    .update(user)
+    .set({ createdAt: now, updatedAt: now })
+    .where(and(eq(user.id, userId), eq(user.isAnonymous, true)));
+  return createGuestClinic(userId, locale, now);
 }
 
 /**
